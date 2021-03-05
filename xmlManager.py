@@ -138,6 +138,8 @@ def randomUsers(num,sender):
 def verifyInvitationKey(invitation_key):
     return invitation_key == "martin"
 
+
+
 def main():
     x = getAliases()
 
