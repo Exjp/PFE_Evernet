@@ -38,8 +38,8 @@ class ThreadClient(threading.Thread):
 
         if cmd[0] == "getPhoneNum":
             if not self.logged:
-                print("Permission denied!")
-                self.sendMessage("Permission denied!")
+                print("ERROR 2_|_Permission denied!")
+                self.sendMessage("ERROR 2_|_Permission denied!")
                 return
             #rajouter envoie certif
             toSend = xmlM.getNumberFromAlias(cmd[1])
@@ -51,21 +51,21 @@ class ThreadClient(threading.Thread):
 
         elif cmd[0] == "getInvitationKey":
             if not self.logged:
-                print("Permission denied!")
-                self.sendMessage("Permission denied!")
+                print("ERROR 2_|_Permission denied!")
+                self.sendMessage("ERROR 2_|_Permission denied!")
                 return
-            print("getInvitationKey")
+            self.sendMessage("martin")
 
 
 
         elif cmd[0] == "signIn":
             if self.logged:
-                print("Already logged!")
-                self.sendMessage("Already logged my friend!")
+                print("ERROR 1_|_Already logged my friend!")
+                self.sendMessage("ERROR 1_|_Already logged my friend!")
                 return
             if len(cmd) != 5:
-                print("Bad Input: ...")
-                self.sendMessage("Bad Input: ...")
+                print("ERROR 3_|_Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*")
+                self.sendMessage("ERROR 3_|_Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*")
                 return
             #verif cmd[3]la clé d'invition
             client_pair(cmd[1])
@@ -88,17 +88,17 @@ class ThreadClient(threading.Thread):
 
         elif cmd[0] == "logIn":
             if self.logged:
-                print("Already logged!")
-                self.sendMessage("Already logged my friend!")
+                print("ERROR 1_|_Already logged my friend!")
+                self.sendMessage("ERROR 1_|_Already logged my friend!")
                 return
             if len(cmd) != 3:
-                print("Bad Input: ...")
-                self.sendMessage("Bad Input: ...")
+                print("ERROR 3_|_Wrong input format: logIn *alias* *password*")
+                self.sendMessage("ERROR 3_|_Wrong input format: logIn *alias* *password*")
                 return
             res = xmlM.login(cmd[1], cmd[2])
             if not res:
-                print("Bad Input: ...")
-                self.sendMessage("Bad Input: ...")
+                print("ERROR 4_|_Wrong alias or password")
+                self.sendMessage("ERROR 4_|_Wrong alias or password")
             else:
                 self.logged = True
                 self.alias = cmd[1]
@@ -109,11 +109,11 @@ class ThreadClient(threading.Thread):
         elif cmd[0] == "getPhoneNumList":
             if not self.logged:
                 print("Permission denied!")
-                self.sendMessage("Permission denied!")
+                self.sendMessage("ERROR 2_|_Permission denied!")
                 return
             if len(cmd) != 2:
-                print("Bad Input: ...")
-                self.sendMessage("Bad Input: ...")
+                print("ERROR 3_|_Wrong input format: getPhoneNumList *n_numbers*")
+                self.sendMessage("ERROR 3_|_Wrong input format: getPhoneNumList *n_numbers*")
                 return
             list = xmlM.randomUsers(cmd[1], self.alias)
             print(list)
