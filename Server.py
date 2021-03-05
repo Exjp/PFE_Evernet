@@ -1,4 +1,4 @@
-HOST = '192.168.1.44' #'192.168.1.44'
+HOST = 'localhost' #'192.168.1.44'
 PORT = 50000
 
 import socket, sys, threading
@@ -8,10 +8,13 @@ import os
 xmlM.init()
 
 class ThreadClient(threading.Thread):
+
     '''dérivation d'un objet thread pour gérer la connexion avec un client'''
     def __init__(self, conn):
         threading.Thread.__init__(self)
         self.connexion = conn
+        self.logged = False
+        self.alias = None
     def receive(self):
         msg = self.connexion.recv(1024).decode("utf-8").split("_|_")
         if msg == "":
@@ -24,20 +27,43 @@ class ThreadClient(threading.Thread):
 
 
     def sendMessage(self, msg):
+
         msg += "_|_END_COMMUNICATION"
         self.connexion.send(msg.encode("utf-8"))
 
 
     def callBack(self, commande):
         cmd = commande[0].split()
+
+
         if cmd[0] == "getPhoneNum":
+            if not self.logged:
+                print("Permission denied!")
+                self.sendMessage("Permission denied!")
+                return
             #rajouter envoie certif
-            num = xmlM.getNumberFromAlias(cmd[1])
-            self.sendMessage(num)
+            toSend = xmlM.getNumberFromAlias(cmd[1])
+            toSend += "_|_"
+            toSend += xmlM.getKeyFromAlias(cmd[1])
+            self.sendMessage(toSend)
+
+
+
         elif cmd[0] == "getInvitationKey":
+            if not self.logged:
+                print("Permission denied!")
+                self.sendMessage("Permission denied!")
+                return
             print("getInvitationKey")
+
+
+
         elif cmd[0] == "signIn":
-            if len(cmd) != 4:
+            if self.logged:
+                print("Already logged!")
+                self.sendMessage("Already logged my friend!")
+                return
+            if len(cmd) != 5:
                 print("Bad Input: ...")
                 self.sendMessage("Bad Input: ...")
                 return
@@ -46,14 +72,55 @@ class ThreadClient(threading.Thread):
             cert_str = open(cmd[1]+"_crt.pem", 'rt').read()
             key_str = open(cmd[1]+"_key.pem", 'rt').read()
 
-            xmlM.addUser(cmd[1], cmd[2], cert_str)
+            xmlM.addUser(cmd[1], cmd[2], cmd[3], cert_str)
 
-            keyCert = cert_str + " " + key_str
+            keyCert = cert_str + "_|_" + key_str + "_|_" + ca_cert_str
             self.sendMessage(keyCert)
             os.remove(cmd[1]+"_crt.pem")
             os.remove(cmd[1]+"_key.pem")
+
+            #si pas d'erreur
+            self.logged = True
+            self.alias = cmd[1]
+
+
+
+
+        elif cmd[0] == "logIn":
+            if self.logged:
+                print("Already logged!")
+                self.sendMessage("Already logged my friend!")
+                return
+            if len(cmd) != 3:
+                print("Bad Input: ...")
+                self.sendMessage("Bad Input: ...")
+                return
+            res = xmlM.login(cmd[1], cmd[2])
+            if not res:
+                print("Bad Input: ...")
+                self.sendMessage("Bad Input: ...")
+            else:
+                self.logged = True
+                self.alias = cmd[1]
+                self.sendMessage("Authentified")
+
+
+
         elif cmd[0] == "getPhoneNumList":
-            return
+            if not self.logged:
+                print("Permission denied!")
+                self.sendMessage("Permission denied!")
+                return
+            if len(cmd) != 2:
+                print("Bad Input: ...")
+                self.sendMessage("Bad Input: ...")
+                return
+            list = xmlM.randomUsers(cmd[1], self.alias)
+            print(list)
+            strList = ' '.join([str(elem) for elem in list])
+            self.sendMessage(strList)
+
+
 
         else:
             print("Invalid callBack")
@@ -90,6 +157,9 @@ try:
     open("ca_key.pem", "r")
 except:
     CA_pair()
+
+ca_cert_str = open("ca_crt.pem", 'rt').read()
+
 
 mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
