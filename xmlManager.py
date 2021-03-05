@@ -136,10 +136,7 @@ def randomUsers(num,sender):
     return tmpList
 
 def verifyInvitationKey(invitation_key):
-    if invitation_key == "martin":
-        return True
-    else:
-        return False
+    return invitation_key == "martin"
 
 def main():
     x = getAliases()
