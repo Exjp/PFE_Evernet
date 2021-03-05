@@ -1,10 +1,18 @@
-HOST = 'localhost' #'192.168.1.44'
-PORT = 50000
-
 import socket, sys, threading
 import xmlManager as xmlM
 from pair_utils import *
 import os
+
+HOST = '192.168.1.44' #'192.168.1.44'
+PORT = 50000
+if len(sys.argv)>1:
+    if sys.argv[1] == "test":
+        HOST = 'localhost'
+        PORT = 50001
+        sys.stdout = open('log_debug_ClientTU.txt', 'w')
+
+print("HOST: " + HOST + " Port: " + str(PORT))
+
 xmlM.init()
 
 class ThreadClient(threading.Thread):
@@ -183,4 +191,4 @@ while 1:
     conn_client[it] = connexion
     print ("Client %s connecté, adresse IP %s, port %s." %(it, adresse[0], adresse[1]))
     # Dialogue avec le client :
-    connexion.send(str.encode("Vous êtes connecté. Envoyez vos messages._|_END_COMMUNICATION"))
+    connexion.send(str.encode("Vous êtes connecté._|_END_COMMUNICATION"))

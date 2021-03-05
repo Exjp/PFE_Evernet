@@ -1,10 +1,11 @@
 # Définition d'un client réseau rudimentaire
 # Ce client dialogue avec un serveur ad hoc
 
-import socket, sys, os
+import socket, sys, os, time
 
 
 def receive():
+    global mySocket
     msg = mySocket.recv(1024).decode("utf-8").split("_|_")
     if msg == "":
         return
@@ -13,38 +14,76 @@ def receive():
     return msg
 
 def send(msg):
+    global mySocket
     msg += "_|_END_COMMUNICATION"
     mySocket.send(msg.encode("utf-8"))
+
+def connection():
+    global mySocket
+    mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        mySocket.connect((HOST, PORT))
+    except socket.error:
+        print("La connexion a échoué.")
+        return False
+    receive()
+    return True
+
+def deconnection():
+    global mySocket
+    send("FIN")
+    msg = receive()
+    if msg[0] == "FIN":
+        mySocket.close()
+        mySocket = None
+
+
+
 
 """
 TEST CONNECTION
 """
 
 def testServerConnection():
-    try:
-        mySocket.connect((HOST, PORT))
-    except socket.error:
-        return False
-    return True
+    res = connection()
+    deconnection()
+    return res
 
 """
 TEST SIGNIN
 """
 def testSignInWorking():
-    try:
-        mySocket.connect((HOST, PORT))
-    except socket.error:
-        sys.exit()
+    connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    return (getNumberFromAlias("alias_test") == "0123456789")
+    msg = receive()
+    #print(msg)
+    deconnection()
+    return True
 
 def testSignInCallBack():
     return True
 
 def testSignInErrorFormat():
+    connection()
+    send("signIn alias_test mdp_test martin")
+    msg = receive()
+    if msg != "ERROR 3_|_Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
+        return False
+    send("signIn alias_test mdp_test 0123456789 martin coucou")
+    msg = receive()
+    if msg != "ERROR 3_|_Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
+        return False
+    deconnection()
     return True
 
+
 def testSignInErrorAlreadyLog():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin")
+    msg = receive()
+    if msg != "ERROR 1_|_Already logged my friend!":
+        return False
+    deconnection()
     return True
 
 """
@@ -52,6 +91,12 @@ TEST LOGIN
 """
 
 def testLogInWorking():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin")
+    deconnection()
+    connection()
+    send("logIn alias_test mdp_test")
+    deconnection()
     return True
 
 def testLogInCallBack():
@@ -107,30 +152,34 @@ def testGetInvitationKeyCallBack():
 
 def testGetInvitationKeyErrorPermission():
     return True
+time.sleep(3)
+if os.path.exists("page.xml"):
+    os.remove("page.xml")
 
-
-os.remove("page.xml")
-os.System('python Server.py')
 HOST = 'localhost' #'192.168.1.44'
-PORT = 50000
+PORT = 50001
 
-mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+mySocket = None
+"""
 try:
     mySocket.connect((HOST, PORT))
 except socket.error:
     print("La connexion a échoué.")
     sys.exit()
 print("Connexion établie avec le serveur.")
+"""
 
-print("Début des Tests Unitaires :\n")
-print("Fonction connection :\n")
-
-print("Fonction signIn :\n")
-print("Fonction logIn :\n")
-print("Fonction getNb :\n")
-print("Fonction getPhoneNumList :\n")
-print("Fonction getInvitationalKey :\n")
+print("Début des Tests Unitaires :")
+print("----------Fonction connection----------")
+print("Connexion au server : " + str(testServerConnection()))
+print("----------Fonction signIn----------")
+print("Test de signIn : " + str(testSignInWorking()))
+print("Test de l'erreur de format : " + str(testSignInErrorFormat()))
+print("Test de l'erreur already log : " + str(testSignInErrorAlreadyLog()))
+print("----------Fonction logIn----------")
+print("----------Fonction getNb----------")
+print("----------Fonction getPhoneNumList----------")
+print("----------Fonction getInvitationalKey----------")
 
 """
 msgServeur = receive()
@@ -145,12 +194,6 @@ while 1:
     msgServeur = receive()
 """
 
-
-
-
-# 4) Fermeture de la connexion :
-print("Connexion interrompue.")
-mySocket.close()
 
 
 #msg.decode("utf-8")
