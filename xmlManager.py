@@ -128,15 +128,15 @@ def getAliases():
 def randomUsers(num,sender):
     listAlias = getAliases()
     listAlias.pop(listAlias.index(sender))
-    num=int(num)
+    num = int(num)
     sizeListAlias = len(listAlias)
     tmpList = [[0 for x in range(num)] for y in range(2)]
 
-    
+
     if num > sizeListAlias:
         print("nombre demandé trop grand")
         return
-    
+
     cnt=0
     aleaIndList = random.sample(range(sizeListAlias), num)
 
@@ -146,6 +146,10 @@ def randomUsers(num,sender):
         cnt = cnt + 1
     return tmpList
 
+def verifyInvitationKey(invitation_key):
+    return invitation_key == "martin"
+
+
 
 def main():
     x = getAliases()
@@ -153,5 +157,3 @@ def main():
 if __name__ == "__main__":
     init()
     main()
-
-
