@@ -23,7 +23,7 @@ def send(msg):
 
 
 HOST = '192.168.1.44'
-PORT = 50001
+PORT = 50000
 if len(sys.argv)>1:
     HOST = sys.argv[1]
 

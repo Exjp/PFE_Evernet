@@ -51,7 +51,6 @@ class ThreadClient(threading.Thread):
                 print("error while decode received message: " + msg + " + " + tmp)
                 return False
         del msg[-1]
-        print(msg)
         return msg
 
 
@@ -145,8 +144,15 @@ class ThreadClient(threading.Thread):
                 self.sendMessage("ERROR 3_|_Wrong input format: getPhoneNumList *n_numbers*")
                 return
             list = xmlM.randomUsers(cmd[1], self.alias)
-            print(list)
-            strList = ' '.join([str(elem) for elem in list])
+            strList = ""
+            strList += list[0][0]
+            strList += "_|_"
+            strList += list[0][1]
+            for x in range(1, len(list)):
+                strList += "_|_"
+                strList += list[x][0]
+                strList += "_|_"
+                strList += list[x][1]
             self.sendMessage(strList)
 
 
