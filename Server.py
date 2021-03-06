@@ -2,6 +2,7 @@ import socket, sys, threading
 import xmlManager as xmlM
 from pair_utils import *
 import os
+import select, time
 
 HOST = '192.168.1.44' #'192.168.1.44'
 PORT = 50000
@@ -9,7 +10,10 @@ if len(sys.argv)>1:
     if sys.argv[1] == "test":
         HOST = 'localhost'
         PORT = 50001
-        sys.stdout = open('log_debug_ClientTU.txt', 'w')
+        #sys.stdout = open('log_debug_ClientTU.txt', 'w')
+    if sys.argv[1] == "localhost":
+        HOST = 'localhost'
+        PORT = 50000
 
 print("HOST: " + HOST + " Port: " + str(PORT))
 
@@ -24,11 +28,28 @@ class ThreadClient(threading.Thread):
         self.logged = False
         self.alias = None
     def receive(self):
-        msg = self.connexion.recv(1024).decode("utf-8").split("_|_")
-        if msg == "":
-            return
+        try:
+            msg = self.connexion.recv(1024)
+        except:
+            print("error while receive")
+        try:
+            msg = msg.decode("utf-8")
+        except:
+            print("error while decode received message: " + msg)
+            return False
+        msg = msg.split("_|_")
+        if msg[0] == "":
+            self.connexion.close()
+            del conn_client[self.getName()]
+            print("Client disconnected unexpectedly:", self.getName())
+            sys.exit()
         while msg[-1] != "END_COMMUNICATION":
-            msg += self.connexion.recv(1024).decode("utf-8").split("_|_")
+            tmp = self.connexion.recv(1024)
+            try:
+                msg += tmp.decode("utf-8").split("_|_")
+            except:
+                print("error while decode received message: " + msg + " + " + tmp)
+                return False
         del msg[-1]
         print(msg)
         return msg
@@ -135,18 +156,21 @@ class ThreadClient(threading.Thread):
             self.sendMessage("Invalid callBack")
 
     def run(self):
-        # Dialogue avec le client :
-        nom = self.getName()        # Chaque thread possède un nom
-
+        nom = self.getName()
         while 1:
             msgClient = self.receive()
-            if msgClient[-1].upper() == "FIN":
-                self.sendMessage("FIN")
-                break
-            #self.connexion.send(str.encode("RECU"))
-            self.callBack(msgClient)
-            message = "%s> %s" % (nom, msgClient)
-            print(message)
+            if msgClient == False:
+                print("receive error")
+                sendMessage("ERROR")
+            else:
+                if msgClient[-1].upper() == "FIN" or msgClient == None:
+                    self.sendMessage("FIN")
+
+                    break
+                #self.connexion.send(str.encode("RECU"))
+                self.callBack(msgClient)
+                message = "%s> %s" % (nom, msgClient)
+                print(message)
             # Faire suivre le message à tous les autres clients :
             #for cle in conn_client:
             #    if cle != nom:      # ne pas le renvoyer à l'émetteur
@@ -177,6 +201,10 @@ except socket.error:
     sys.exit()
 print("Serveur prêt, en attente de requêtes ...")
 mySocket.listen(500)
+
+if(mySocket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)):
+    print("setsockopt error")
+
 
 # Attente et prise en charge des connexions demandées par les clients :
 conn_client = {}                # dictionnaire des connexions clients

@@ -5,11 +5,16 @@ import socket, sys
 
 
 def receive():
-    msg = mySocket.recv(1024).decode("utf-8").split("_|_")
+    msg = mySocket.recv(1024).decode("utf-8")
+    tmp = msg
+    msg = msg.split("_|_")
     if msg == "":
         return
     while msg[-1] != "END_COMMUNICATION":
-        msg += mySocket.recv(1024).decode("utf-8").split("_|_")
+        tmp2= mySocket.recv(1024).decode("utf-8")
+        tmp += tmp2
+        msg += tmp2.split("_|_")
+    print(tmp)
     return msg
 
 def send(msg):
@@ -17,9 +22,10 @@ def send(msg):
     mySocket.send(msg.encode("utf-8"))
 
 
-HOST = 'localhost' #'192.168.1.44'
-PORT = 50000
-
+HOST = '192.168.1.44'
+PORT = 50001
+if len(sys.argv)>1:
+    HOST = sys.argv[1]
 
 mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -37,7 +43,7 @@ msgServeur = receive()
 while 1:
     if msgServeur[0].upper() == "FIN":
         break
-    print(msgServeur)
+    #print(msgServeur)
     msgClient = input("Ecrire :")
 
     send(msgClient)
