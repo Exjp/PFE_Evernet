@@ -170,7 +170,7 @@ class ThreadClient(threading.Thread):
             msgClient = self.receive()
             if msgClient == False:
                 print("receive error")
-                sendMessage("ERROR")
+                self.sendMessage("ERROR")
             else:
                 if msgClient[-1].upper() == "FIN" or msgClient == None:
                     self.sendMessage("FIN")
