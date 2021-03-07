@@ -32,13 +32,14 @@ class ThreadClient(threading.Thread):
         try:
             msg = self.connexion.recv(1024)
             print(msg)
+            try:
+                msg = msg.decode("utf-8")
+            except:
+                print("error while decode received message: " + str(msg))
+                return False
         except:
             print("error while receive")
-        try:
-            msg = msg.decode("utf-8")
-        except:
-            print("error while decode received message: " + str(msg))
-            return False
+
         msg = msg.split("_|_")
         if msg[0] == "":
             self.connexion.close()
