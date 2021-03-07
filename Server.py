@@ -35,7 +35,7 @@ class ThreadClient(threading.Thread):
         try:
             msg = msg.decode("utf-8")
         except:
-            print("error while decode received message: " + msg)
+            print("error while decode received message: " + str(msg))
             return False
         msg = msg.split("_|_")
         if msg[0] == "":
@@ -48,7 +48,7 @@ class ThreadClient(threading.Thread):
             try:
                 msg += tmp.decode("utf-8").split("_|_")
             except:
-                print("error while decode received message: " + msg + " + " + tmp)
+                print("error while decode received message: " + str(msg) + " + " + str(tmp))
                 return False
         del msg[-1]
         return msg
