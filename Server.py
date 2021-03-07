@@ -3,6 +3,7 @@ import xmlManager as xmlM
 from pair_utils import *
 import os
 import select, time
+import datetime
 
 HOST = '192.168.1.44' #'192.168.1.44'
 PORT = 50000
@@ -30,6 +31,7 @@ class ThreadClient(threading.Thread):
     def receive(self):
         try:
             msg = self.connexion.recv(1024)
+            print(msg)
         except:
             print("error while receive")
         try:
@@ -178,7 +180,8 @@ class ThreadClient(threading.Thread):
                     break
                 #self.connexion.send(str.encode("RECU"))
                 self.callBack(msgClient)
-                message = "%s> %s" % (nom, msgClient)
+                message = str(datetime.datetime.now())
+                message += " : %s> %s" % (nom, msgClient)
                 print(message)
             # Faire suivre le message à tous les autres clients :
             #for cle in conn_client:
@@ -226,6 +229,8 @@ while 1:
     # Mémoriser la connexion dans le dictionnaire :
     it = th.getName()        # identifiant du thread
     conn_client[it] = connexion
-    print ("Client %s connecté, adresse IP %s, port %s." %(it, adresse[0], adresse[1]))
+    tmp_print = str(datetime.datetime.now())
+    tmp_print += " : Client %s connecté, adresse IP %s, port %s." %(it, adresse[0], adresse[1])
+    print (tmp_print)
     # Dialogue avec le client :
     connexion.send(str.encode("Vous êtes connecté._|_END_COMMUNICATION"))
