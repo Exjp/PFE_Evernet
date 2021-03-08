@@ -17,10 +17,13 @@ if len(sys.argv)>1:
 
 
 s=jpysocket.jpysocket() #Create Socket
-s.bind((host,port)) #Bind Port And Host
+s.bind((HOST,PORT)) #Bind Port And Host
 s.listen(5) #Socket is Listening
 print("Socket Is Listening....")
 print("HOST: " + HOST + " Port: " + str(PORT))
+
+xmlM.init()
+
 class ThreadClient(threading.Thread):
 
     '''dérivation d'un objet thread pour gérer la connexion avec un client'''
@@ -205,6 +208,16 @@ class ThreadClient(threading.Thread):
         print("Client déconnecté:", nom)
 
         # Le thread se termine ici
+
+# Initialisation du serveur - Mise en place du socket :
+try:
+    open("ca_crt.pem", "r")
+    open("ca_key.pem", "r")
+except:
+    CA_pair()
+
+ca_cert_str = open("ca_crt.pem", 'rt').read()
+
 conn_client = {}
 while 1:
     connection,address=s.accept() #Accept the Connection
