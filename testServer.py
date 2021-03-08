@@ -4,13 +4,23 @@ from pair_utils import *
 import jpysocket
 import datetime, time
 
-host='localhost' #Host Name
-port=50000    #Port Number
+HOST = '192.168.1.44' #'192.168.1.44'
+PORT = 50000
+if len(sys.argv)>1:
+    if sys.argv[1] == "test":
+        HOST = 'localhost'
+        PORT = 50001
+        #sys.stdout = open('log_debug_ClientTU.txt', 'w')
+    if sys.argv[1] == "localhost":
+        HOST = 'localhost'
+        PORT = 50000
+
+
 s=jpysocket.jpysocket() #Create Socket
 s.bind((host,port)) #Bind Port And Host
 s.listen(5) #Socket is Listening
 print("Socket Is Listening....")
-
+print("HOST: " + HOST + " Port: " + str(PORT))
 class ThreadClient(threading.Thread):
 
     '''dérivation d'un objet thread pour gérer la connexion avec un client'''
