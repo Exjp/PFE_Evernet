@@ -2,16 +2,18 @@
 # Ce client dialogue avec un serveur ad hoc
 
 import socket, sys
-
+import jpysocket
 
 def receive():
-    msg = mySocket.recv(1024).decode("utf-8")
+    msg = mySocket.recv(1024)
+    msg = jpysocket.jpydecode(msg)
     tmp = msg
     msg = msg.split("_|_")
     if msg == "":
         return
     while msg[-1] != "END_COMMUNICATION":
-        tmp2= mySocket.recv(1024).decode("utf-8")
+        tmp2 = mySocket.recv(1024)
+        tmp2 = jpysocket.jpydecode(tmp2)
         tmp += tmp2
         msg += tmp2.split("_|_")
     print(tmp)
@@ -19,7 +21,8 @@ def receive():
 
 def send(msg):
     msg += "_|_END_COMMUNICATION"
-    mySocket.send(msg.encode("utf-8"))
+    msg=jpysocket.jpyencode(msg)
+    mySocket.send(msg)
 
 
 HOST = '192.168.1.44'
