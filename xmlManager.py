@@ -62,8 +62,9 @@ def addUser(aliasValue, passValue, numberValue, keyValue):
 
         root.append(user)
         treeWrite()
+        return "User successfully added"
     else :
-        print("User already exists")
+        return "Error : User already exists"
 
 
 # return un erreur si pas trouvé, nullptr, verif le nom en entrée
