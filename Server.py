@@ -46,7 +46,7 @@ class ThreadClient(threading.Thread):
             del conn_client[self.getName()]
             print("Client disconnected unexpectedly:", self.getName())
             sys.exit()
-        while msg[-1] != "END_COMMUNICATION":
+        while msg[-1] != "END_COMMUNICATION\r\n":
             tmp = self.connexion.recv(1024)
             try:
                 msg += tmp.decode("utf-8").split("_|_")

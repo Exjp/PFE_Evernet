@@ -22,7 +22,7 @@ class ThreadClient(threading.Thread):
 
 
     def callBack(self, commande):
-        cmd = commande[0].split()
+        cmd = commande
 
 
         if cmd[0] == "getPhoneNum":
@@ -163,6 +163,7 @@ class ThreadClient(threading.Thread):
 
         msg += "_|_END_COMMUNICATION"
         msg=jpysocket.jpyencode(msg) #Encript The Msg
+        print(msg)
         connection.send(msg)
 
     def run(self):

@@ -20,6 +20,7 @@ def receive():
     return msg
 
 def send(msg):
+    msg = msg.replace(" ", "_|_")
     msg += "_|_END_COMMUNICATION"
     msg=jpysocket.jpyencode(msg)
     mySocket.send(msg)
