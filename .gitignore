@@ -1,1 +1,4 @@
 page.xml
+__pycache__\*
+*.pem
+log_debug_ClientTU.txt
