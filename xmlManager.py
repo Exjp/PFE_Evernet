@@ -136,7 +136,7 @@ def getNumberFromAlias(name):
 def getAliasFromNumber(number):
     if re.match( r'/([0-9\s\-]{7,})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?$/', number, re.M|re.I):
         return "Wrong number format"
-    
+
     for elem in root:
         if elem.attrib['number'] == number and elem.attrib['banned'] == "False":
             return elem.attrib['alias']
@@ -163,13 +163,13 @@ def randomUsers(num,sender):
     listAlias = getAliases()
     if listAlias == "Error getAliases() : Tree empty":
         return "Error randomUsers() : randoTree empty"
-    try:    
+    try:
         listAlias.pop(listAlias.index(sender))
     except IndexError:
         return "Error randomUsers() : Index Error"
     except ValueError:
         return "Error randomUsers() : Sender is not ine the tree"
-    
+
     num = int(num)
     sizeListAlias = len(listAlias)
     tmpList = [[0 for x in range(2)] for y in range(num)]
@@ -195,9 +195,10 @@ def getInvitationKey(name):
 def verifyInvitationKey(invitation_key):
     return invitation_key == "martin"
 
-
+"""
 def main():
-    
-if __name__ == "__main__":
-    init()
-    main()
+
+    if __name__ == "__main__":
+        init()
+        main()
+"""
