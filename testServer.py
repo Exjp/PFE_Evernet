@@ -71,7 +71,8 @@ class ThreadClient(threading.Thread):
             client_pair(cmd[1])
             cert_str = open(cmd[1]+"_crt.pem", 'rt').read()
             key_str = open(cmd[1]+"_key.pem", 'rt').read()
-
+            os.remove(cmd[1]+"_crt.pem")
+            os.remove(cmd[1]+"_key.pem")
             res = xmlM.addUser(cmd[1], cmd[2], cmd[3], cert_str)
             if res == "Error : User already exists":
                 print("ERROR 5_|_User already exists")
@@ -79,8 +80,7 @@ class ThreadClient(threading.Thread):
                 return
             keyCert = cert_str + "_|_" + key_str + "_|_" + ca_cert_str
             self.sendMessage(keyCert)
-            os.remove(cmd[1]+"_crt.pem")
-            os.remove(cmd[1]+"_key.pem")
+
 
             #si pas d'erreur
             self.logged = True
