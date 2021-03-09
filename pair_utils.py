@@ -19,20 +19,21 @@ def CA_pair():
     ])
 
     ca_cert.add_extensions([
-        crypto.X509Extension("authorityKeyIdentifier".encode('utf-8'), False, "keyid:always, issuer:always".encode('utf-8'), issuer=ca_cert),
+        crypto.X509Extension("authorityKeyIdentifier".encode('utf-8'), False, "keyid:always".encode('utf-8'), issuer=ca_cert),
     ])
 
     ca_cert.add_extensions([
-        crypto.X509Extension("basicConstraints".encode('utf-8'), False, "CA:TRUE, pathlen:1".encode('utf-8')),
+        crypto.X509Extension("basicConstraints".encode('utf-8'), False, "CA:TRUE".encode('utf-8')),
         crypto.X509Extension("keyUsage".encode('utf-8'), False, "keyCertSign, cRLSign, digitalSignature, nonRepudiation".encode('utf-8')),
     ])
 
     ca_cert.set_issuer(ca_subj)
     ca_cert.set_pubkey(ca_key)
-    ca_cert.sign(ca_key, 'sha256')
 
     ca_cert.gmtime_adj_notBefore(0)
     ca_cert.gmtime_adj_notAfter(10*365*24*60*60)
+
+    ca_cert.sign(ca_key, 'sha256')
 
     with open("ca_crt.pem", "wb") as f:
         f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, ca_cert))
@@ -59,24 +60,25 @@ def client_pair(name):
     cert.set_version(2)
     cert.set_serial_number(random.randint(50000000,100000000))
 
-    cert.gmtime_adj_notBefore(0)
-    cert.gmtime_adj_notAfter(10*365*24*60*60)
-
-    cert.set_issuer(ca_cert.get_subject())
-    cert.set_subject(req.get_subject())
-    cert.set_pubkey(req.get_pubkey())
-    cert.sign(ca_key, 'sha256')
-
-    cert.add_extensions([
-        crypto.X509Extension("authorityKeyIdentifier".encode('utf-8'), False, "keyid:always, issuer:always".encode('utf-8'), issuer=ca_cert),
-        crypto.X509Extension("extendedKeyUsage".encode('utf-8'), False, "clientAuth".encode('utf-8')),
-        crypto.X509Extension("keyUsage".encode('utf-8'), False, "digitalSignature, nonRepudiation".encode('utf-8')),
-    ])
-
     cert.add_extensions([
         crypto.X509Extension("basicConstraints".encode('utf-8'), False, "CA:FALSE".encode('utf-8')),
         crypto.X509Extension("subjectKeyIdentifier".encode('utf-8'), False, "hash".encode('utf-8'), subject=cert),
     ])
+
+    cert.add_extensions([
+        crypto.X509Extension("authorityKeyIdentifier".encode('utf-8'), False, "keyid:always".encode('utf-8'), issuer=ca_cert),
+        crypto.X509Extension("extendedKeyUsage".encode('utf-8'), False, "clientAuth".encode('utf-8')),
+        crypto.X509Extension("keyUsage".encode('utf-8'), False, "digitalSignature, nonRepudiation".encode('utf-8')),
+    ])
+
+    cert.set_issuer(ca_cert.get_subject())
+    cert.set_subject(req.get_subject())
+    cert.set_pubkey(req.get_pubkey())
+
+    cert.gmtime_adj_notBefore(0)
+    cert.gmtime_adj_notAfter(10*365*24*60*60)
+
+    cert.sign(ca_key, 'sha256')
 
     cert_name = name+"_crt.pem"
     with open(cert_name, "wb") as f:
