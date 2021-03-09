@@ -4,6 +4,7 @@
 import socket, sys, os, time
 import jpysocket
 
+'''
 def receive():
     global mySocket
     msg = mySocket.recv(1024)
@@ -23,6 +24,19 @@ def send(msg):
     msg += "_|_END_COMMUNICATION"
     msg=jpysocket.jpyencode(msg)
     mySocket.send(msg)
+'''
+
+def receive():
+    msg = mySocket.recv(1024).decode("utf-8").split("_|_")
+    if msg == "":
+        return
+    while msg[-1] != "END_COMMUNICATION":
+        msg += mySocket.recv(1024).decode("utf-8").split("_|_")
+    return msg
+
+def send(msg):
+    msg += "_|_END_COMMUNICATION"
+    mySocket.send(msg.encode("utf-8"))
 
 def connection():
     global mySocket
