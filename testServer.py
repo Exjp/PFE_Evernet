@@ -132,8 +132,15 @@ class ThreadClient(threading.Thread):
                     strList += "_|_"
                     strList += list[x][1]
             self.sendMessage(strList)
-        elif sys.argv[1] == "test" and cmd[0] == "clearDB":
-            xmlM.emptyXml()
+
+
+        elif cmd[0] == "clearDB":
+            if len(argv) != 2:
+                print("Permission denied!")
+                self.sendMessage("ERROR 2_|_Permission denied!")
+                return
+            if argv[1] == "test":
+                xmlM.emptyXml()
 
 
         else:
