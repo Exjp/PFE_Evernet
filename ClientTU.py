@@ -9,20 +9,31 @@ def receive():
     msg = mySocket.recv(1024)
     msg = jpysocket.jpydecode(msg)
     msg = msg.split("_|_")
+    if len(msg)>1:
+        del msg[0]
     if msg == "":
         return
     while msg[-1] != "END_COMMUNICATION":
         tmp = mySocket.recv(1024)
         tmp = jpysocket.jpydecode(tmp)
         msg += tmp.split("_|_")
+    for x in msg:
+        if x != "BEGIN_COMMUNICATION":
+            msg.remove(x)
+        else:
+            msg.remove('BEGIN_COMMUNICATION')
+            break
+    del msg[-1]
     return msg
 
 def send(msg):
     global mySocket
     msg = msg.replace(" ", "_|_")
-    msg += "_|_END_COMMUNICATION"
-    msg=jpysocket.jpyencode(msg)
-    mySocket.send(msg)
+    to_send = "_|_BEGIN_COMMUNICATION_|_"
+    to_send += msg
+    to_send += "_|_END_COMMUNICATION"
+    to_send = jpysocket.jpyencode(to_send)
+    mySocket.send(to_send)
 
 def connection():
     global mySocket
@@ -60,9 +71,12 @@ TEST SIGNIN
 """
 def testSignInWorking():
     connection()
+    send("clearDB")
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
     msgTmp = receive()
-    send("FIN")
+    deconnection()
+    time.sleep(0.2)
+    connection()
     send("signIn alias_test2 mdp_test2 1123456789 martin")
     msgTmp = receive()
     send("getPhoneNum alias_test")
@@ -74,14 +88,14 @@ def testSignInWorking():
 
 def testSignInErrorFormat():
     connection()
-    send("clear")
+    send("clearDB")
     send("signIn alias_test mdp_test martin")
     msg = receive()
-    if msg[0] != "ERROR 3" or msg [1] != "Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
+    if msg[0] != "ERROR 3" or msg [1] != "Wrong input format: signIn_|_*alias*_|_*password*_|_*phoneNum*_|_*invitationKey*":
         return False
     send("signIn alias_test mdp_test 0123456789 martin coucou")
     msg = receive()
-    if msg[0] != "ERROR 3" or msg[1] != "Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
+    if msg[0] != "ERROR 3" or msg[1] != "Wrong input format: signIn_|_*alias*_|_*password*_|_*phoneNum*_|_*invitationKey*":
         return False
     deconnection()
     return True
@@ -170,8 +184,8 @@ print("----------Fonction connection----------")
 print("Connexion au server : " + str(testServerConnection()))
 print("----------Fonction signIn----------")
 print("Test de signIn : " + str(testSignInWorking()))
-print("Test de l'erreur de format : " + str(testSignInErrorFormat()))
-print("Test de l'erreur already log : " + str(testSignInErrorAlreadyLog()))
+#print("Test de l'erreur de format : " + str(testSignInErrorFormat()))
+#print("Test de l'erreur already log : " + str(testSignInErrorAlreadyLog()))
 print("----------Fonction logIn----------")
 print("----------Fonction getNb----------")
 print("----------Fonction getPhoneNumList----------")
