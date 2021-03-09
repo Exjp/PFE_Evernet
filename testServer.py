@@ -151,6 +151,7 @@ class ThreadClient(threading.Thread):
     def receive(self):
         try:
             msg=connection.recv(1024)
+            print(msg)
             try:
                 msg=jpysocket.jpydecode(msg)
             except:
