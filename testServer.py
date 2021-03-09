@@ -181,7 +181,9 @@ class ThreadClient(threading.Thread):
             else:
                 msg.remove('BEGIN_COMMUNICATION')
                 break
+
         del msg[-1]
+        print(msg)
         return msg
 
 
