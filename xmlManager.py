@@ -12,6 +12,13 @@ def init():
     global root
     root = tree.getroot()
 
+def reset():
+    emptyXml()
+    global tree
+    tree = ET.parse('page.xml')
+    global root
+    root = tree.getroot()
+
 def treeWrite():
     tree.write('page.xml', encoding="utf-8", xml_declaration=True)
 
