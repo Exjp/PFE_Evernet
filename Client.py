@@ -7,23 +7,33 @@ import jpysocket
 def receive():
     msg = mySocket.recv(1024)
     msg = jpysocket.jpydecode(msg)
-    tmp = msg
+
     msg = msg.split("_|_")
+    if len(msg)>1:
+        del msg[0]
     if msg == "":
         return
     while msg[-1] != "END_COMMUNICATION":
-        tmp2 = mySocket.recv(1024)
-        tmp2 = jpysocket.jpydecode(tmp2)
-        tmp += tmp2
-        msg += tmp2.split("_|_")
-    print(tmp)
+        tmp = mySocket.recv(1024)
+        tmp = jpysocket.jpydecode(tmp)
+        msg += tmp.split("_|_")
+    for x in msg:
+        if x != "BEGIN_COMMUNICATION":
+            msg.remove(x)
+        else:
+            msg.remove('BEGIN_COMMUNICATION')
+            break
+    del(msg[-1])
+    print(msg)
     return msg
 
 def send(msg):
     msg = msg.replace(" ", "_|_")
-    msg += "_|_END_COMMUNICATION"
-    msg=jpysocket.jpyencode(msg)
-    mySocket.send(msg)
+    to_send = "_|_BEGIN_COMMUNICATION_|_"
+    to_send += msg
+    to_send += "_|_END_COMMUNICATION"
+    to_send=jpysocket.jpyencode(to_send)
+    mySocket.send(to_send)
 
 
 HOST = '192.168.1.44'

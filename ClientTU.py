@@ -4,39 +4,36 @@
 import socket, sys, os, time
 import jpysocket
 
-'''
 def receive():
     global mySocket
     msg = mySocket.recv(1024)
     msg = jpysocket.jpydecode(msg)
     msg = msg.split("_|_")
+    if len(msg)>1:
+        del msg[0]
     if msg == "":
         return
     while msg[-1] != "END_COMMUNICATION":
         tmp = mySocket.recv(1024)
         tmp = jpysocket.jpydecode(tmp)
         msg += tmp.split("_|_")
+    for x in msg:
+        if x != "BEGIN_COMMUNICATION":
+            msg.remove(x)
+        else:
+            msg.remove('BEGIN_COMMUNICATION')
+            break
+    del msg[-1]
     return msg
 
 def send(msg):
     global mySocket
     msg = msg.replace(" ", "_|_")
-    msg += "_|_END_COMMUNICATION"
-    msg=jpysocket.jpyencode(msg)
-    mySocket.send(msg)
-'''
-
-def receive():
-    msg = mySocket.recv(1024).decode("utf-8").split("_|_")
-    if msg == "":
-        return
-    while msg[-1] != "END_COMMUNICATION":
-        msg += mySocket.recv(1024).decode("utf-8").split("_|_")
-    return msg
-
-def send(msg):
-    msg += "_|_END_COMMUNICATION"
-    mySocket.send(msg.encode("utf-8"))
+    to_send = "_|_BEGIN_COMMUNICATION_|_"
+    to_send += msg
+    to_send += "_|_END_COMMUNICATION"
+    to_send = jpysocket.jpyencode(to_send)
+    mySocket.send(to_send)
 
 def connection():
     global mySocket
@@ -51,6 +48,7 @@ def connection():
 
 def deconnection():
     global mySocket
+    send("clearDB")
     send("FIN")
     msg = receive()
     if msg[0] == "FIN":
@@ -76,26 +74,30 @@ def testSignInWorking():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
     msgTmp = receive()
-    send("FIN")
+    deconnection()
+    time.sleep(0.2)
+    connection()
     send("signIn alias_test2 mdp_test2 1123456789 martin")
     msgTmp = receive()
     send("getPhoneNum alias_test")
     msg = receive()
     if msg[0] != "0123456789":
+        deconnection()
         return False
     deconnection()
     return True
 
 def testSignInErrorFormat():
     connection()
-    send("clear")
     send("signIn alias_test mdp_test martin")
     msg = receive()
-    if msg[0] != "ERROR 3" or msg [1] != "Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
+    if msg[0] != "ERROR 3":
+        deconnection()
         return False
     send("signIn alias_test mdp_test 0123456789 martin coucou")
     msg = receive()
-    if msg[0] != "ERROR 3" or msg[1] != "Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
+    if msg[0] != "ERROR 3":
+        deconnection()
         return False
     deconnection()
     return True
@@ -103,12 +105,14 @@ def testSignInErrorFormat():
 
 def testSignInErrorAlreadyLog():
     connection()
-    send("clear")
     send("signIn alias_test mdp_test 0123456789 martin")
     msgTmp = receive()
+    print(msgTmp)
     send("signIn alias_test mdp_test 0123456789 martin")
     msg = receive()
-    if msg[0] != "ERROR 1" or msg[1] != "Already logged my friend!":
+    print(msg)
+    if msg[0] != "ERROR 1":
+        deconnection()
         return False
     deconnection()
     return True
@@ -181,7 +185,7 @@ mySocket = None
 
 print("Début des Tests Unitaires :")
 print("----------Fonction connection----------")
-print("Connexion au server : " + str(testServerConnection()))
+print("Test de connexion au server : " + str(testServerConnection()))
 print("----------Fonction signIn----------")
 print("Test de signIn : " + str(testSignInWorking()))
 print("Test de l'erreur de format : " + str(testSignInErrorFormat()))
@@ -190,7 +194,3 @@ print("----------Fonction logIn----------")
 print("----------Fonction getNb----------")
 print("----------Fonction getPhoneNumList----------")
 print("----------Fonction getInvitationalKey----------")
-
-
-
-#msg.decode("utf-8")
