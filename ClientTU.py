@@ -2,21 +2,27 @@
 # Ce client dialogue avec un serveur ad hoc
 
 import socket, sys, os, time
-
+import jpysocket
 
 def receive():
     global mySocket
-    msg = mySocket.recv(1024).decode("utf-8").split("_|_")
+    msg = mySocket.recv(1024)
+    msg = jpysocket.jpydecode(msg)
+    msg = msg.split("_|_")
     if msg == "":
         return
     while msg[-1] != "END_COMMUNICATION":
-        msg += mySocket.recv(1024).decode("utf-8").split("_|_")
+        tmp = mySocket.recv(1024)
+        tmp = jpysocket.jpydecode(tmp)
+        msg += tmp.split("_|_")
     return msg
 
 def send(msg):
     global mySocket
+    msg = msg.replace(" ", "_|_")
     msg += "_|_END_COMMUNICATION"
-    mySocket.send(msg.encode("utf-8"))
+    msg=jpysocket.jpyencode(msg)
+    mySocket.send(msg)
 
 def connection():
     global mySocket
@@ -55,23 +61,27 @@ TEST SIGNIN
 def testSignInWorking():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    send("FIN")
+    send("signIn alias_test2 mdp_test2 1123456789 martin")
+    msgTmp = receive()
+    send("getPhoneNum alias_test")
     msg = receive()
-    #print(msg)
+    if msg[0] != "0123456789":
+        return False
     deconnection()
-    return True
-
-def testSignInCallBack():
     return True
 
 def testSignInErrorFormat():
     connection()
+    send("clear")
     send("signIn alias_test mdp_test martin")
     msg = receive()
-    if msg != "ERROR 3_|_Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
+    if msg[0] != "ERROR 3" or msg [1] != "Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
         return False
     send("signIn alias_test mdp_test 0123456789 martin coucou")
     msg = receive()
-    if msg != "ERROR 3_|_Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
+    if msg[0] != "ERROR 3" or msg[1] != "Wrong input format: signIn *alias* *password* *phoneNum* *invitationKey*":
         return False
     deconnection()
     return True
@@ -79,9 +89,12 @@ def testSignInErrorFormat():
 
 def testSignInErrorAlreadyLog():
     connection()
+    send("clear")
+    send("signIn alias_test mdp_test 0123456789 martin")
+    msgTmp = receive()
     send("signIn alias_test mdp_test 0123456789 martin")
     msg = receive()
-    if msg != "ERROR 1_|_Already logged my friend!":
+    if msg[0] != "ERROR 1" or msg[1] != "Already logged my friend!":
         return False
     deconnection()
     return True
@@ -92,14 +105,14 @@ TEST LOGIN
 
 def testLogInWorking():
     connection()
+    send("clear")
     send("signIn alias_test mdp_test 0123456789 martin")
+    msgTmp= receive()
     deconnection()
     connection()
     send("logIn alias_test mdp_test")
+    msgTmp= receive()
     deconnection()
-    return True
-
-def testLogInCallBack():
     return True
 
 def testLogInErrorAlreadyLog():
@@ -118,9 +131,6 @@ TEST GETNB
 def testGetNbWorking():
     return True
 
-def testGetNbCallBack():
-    return True
-
 def testGetNbErrorPermission():
     return True
 
@@ -129,9 +139,6 @@ TEST GETPHONENUMLIST
 """
 
 def testGetPhoneNumListWorking():
-    return True
-
-def testGetPhoneNumListCallBack():
     return True
 
 def testGetPhoneNumListErrorPermission():
@@ -147,9 +154,6 @@ TEST GETINVITATIONKEY
 def testGetInvitationKeyWorking():
     return True
 
-def testGetInvitationKeyCallBack():
-    return True
-
 def testGetInvitationKeyErrorPermission():
     return True
 time.sleep(3)
@@ -160,14 +164,6 @@ HOST = 'localhost' #'192.168.1.44'
 PORT = 50001
 
 mySocket = None
-"""
-try:
-    mySocket.connect((HOST, PORT))
-except socket.error:
-    print("La connexion a échoué.")
-    sys.exit()
-print("Connexion établie avec le serveur.")
-"""
 
 print("Début des Tests Unitaires :")
 print("----------Fonction connection----------")
@@ -180,19 +176,6 @@ print("----------Fonction logIn----------")
 print("----------Fonction getNb----------")
 print("----------Fonction getPhoneNumList----------")
 print("----------Fonction getInvitationalKey----------")
-
-"""
-msgServeur = receive()
-while 1:
-    if msgServeur[0].upper() == "FIN":
-        break
-    print(msgServeur)
-    msgClient = input("Ecrire :")
-
-    send(msgClient)
-
-    msgServeur = receive()
-"""
 
 
 

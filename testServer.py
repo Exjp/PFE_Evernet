@@ -1,9 +1,8 @@
-import socket, sys, threading
+import sys, threading, os
 import xmlManager as xmlM
 from pair_utils import *
-import os
-import select, time
-import datetime
+import jpysocket
+import datetime, time
 
 HOST = '192.168.1.44' #'192.168.1.44'
 PORT = 50000
@@ -16,6 +15,11 @@ if len(sys.argv)>1:
         HOST = 'localhost'
         PORT = 50000
 
+
+s=jpysocket.jpysocket() #Create Socket
+s.bind((HOST,PORT)) #Bind Port And Host
+s.listen(5) #Socket is Listening
+print("Socket Is Listening....")
 print("HOST: " + HOST + " Port: " + str(PORT))
 
 xmlM.init()
@@ -25,46 +29,13 @@ class ThreadClient(threading.Thread):
     '''dérivation d'un objet thread pour gérer la connexion avec un client'''
     def __init__(self, conn):
         threading.Thread.__init__(self)
-        self.connexion = conn
+        self.connection = conn
         self.logged = False
         self.alias = None
-    def receive(self):
-        try:
-            msg = self.connexion.recv(1024)
-            print(msg)
-            try:
-                msg = msg.decode("utf-8")
-            except:
-                print("error while decode received message: " + str(msg))
-                return False
-        except:
-            print("error while receive")
-
-        msg = msg.split("_|_")
-        if msg[0] == "":
-            self.connexion.close()
-            del conn_client[self.getName()]
-            print("Client disconnected unexpectedly:", self.getName())
-            sys.exit()
-        while msg[-1] != "END_COMMUNICATION\r\n":
-            tmp = self.connexion.recv(1024)
-            try:
-                msg += tmp.decode("utf-8").split("_|_")
-            except:
-                print("error while decode received message: " + str(msg) + " + " + str(tmp))
-                return False
-        del msg[-1]
-        return msg
-
-
-    def sendMessage(self, msg):
-
-        msg += "_|_END_COMMUNICATION"
-        self.connexion.send(msg.encode("utf-8"))
 
 
     def callBack(self, commande):
-        cmd = commande[0].split()
+        cmd = commande
 
 
         if cmd[0] == "getPhoneNum":
@@ -167,17 +138,59 @@ class ThreadClient(threading.Thread):
             print("Invalid callBack")
             self.sendMessage("Invalid callBack")
 
+
+    def receive(self):
+        try:
+            msg=connection.recv(1024) #Recieve msg
+            print("avant decode : " + str(msg))
+            try:
+                msg=jpysocket.jpydecode(msg)
+                print("après decode : ")
+                print(str(msg))
+            except:
+                print("error while decode received message: " + str(msg))
+                return False
+        except:
+            print("error while receive")
+            return False
+
+        msg = msg.split("_|_")
+        if msg[0] == "":
+            self.connection.close()
+            del conn_client[self.getName()]
+            print("Client disconnected unexpectedly:", self.getName())
+            sys.exit()
+        while msg[-1] != "END_COMMUNICATION":
+            tmp = connection.recv(1024)
+            try:
+                msg += jpysocket.jpydecode(tmp).split("_|_")
+            except:
+                print("error while decode received message: " + str(msg) + " + " + str(tmp))
+                return False
+        print(msg)
+        del msg[-1]
+        return msg
+
+
+    def sendMessage(self, msg):
+
+        msg += "_|_END_COMMUNICATION"
+        msg=jpysocket.jpyencode(msg) #Encript The Msg
+        print(msg)
+        connection.send(msg)
+
     def run(self):
         nom = self.getName()
+
         while 1:
             msgClient = self.receive()
+            print("msgClient : " + str(msgClient))
             if msgClient == False:
                 print("receive error")
                 self.sendMessage("ERROR")
             else:
                 if msgClient[-1].upper() == "FIN" or msgClient == None:
                     self.sendMessage("FIN")
-
                     break
                 #self.connexion.send(str.encode("RECU"))
                 self.callBack(msgClient)
@@ -190,11 +203,11 @@ class ThreadClient(threading.Thread):
             #        conn_client[cle].send(str.encode(message))
 
         # Fermeture de la connexion :
-        self.connexion.close()      # couper la connexion côté serveur
+        self.connection.close()      # couper la connexion côté serveur
         del conn_client[nom]        # supprimer son entrée dans le dictionnaire
         print("Client déconnecté:", nom)
-        # Le thread se termine ici
 
+        # Le thread se termine ici
 
 # Initialisation du serveur - Mise en place du socket :
 try:
@@ -205,33 +218,16 @@ except:
 
 ca_cert_str = open("ca_crt.pem", 'rt').read()
 
-
-mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-try:
-    mySocket.bind((HOST, PORT))
-except socket.error:
-    print("La liaison du socket à l'adresse choisie a échoué.")
-    sys.exit()
-print("Serveur prêt, en attente de requêtes ...")
-mySocket.listen(500)
-
-if(mySocket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)):
-    print("setsockopt error")
-
-
-# Attente et prise en charge des connexions demandées par les clients :
-conn_client = {}                # dictionnaire des connexions clients
-
+conn_client = {}
 while 1:
-    connexion, adresse = mySocket.accept()
-    # Créer un nouvel objet thread pour gérer la connexion :
-    th = ThreadClient(connexion)
+    connection,address=s.accept() #Accept the Connection
+    print("Connected To ",address)
+    th = ThreadClient(connection)
     th.start()
-    # Mémoriser la connexion dans le dictionnaire :
-    it = th.getName()        # identifiant du thread
-    conn_client[it] = connexion
-    tmp_print = str(datetime.datetime.now())
-    tmp_print += " : Client %s connecté, adresse IP %s, port %s." %(it, adresse[0], adresse[1])
-    print (tmp_print)
-    # Dialogue avec le client :
-    connexion.send(str.encode("Vous êtes connecté._|_END_COMMUNICATION"))
+    it = th.getName()
+    conn_client[it] = connection
+    msgsend=jpysocket.jpyencode("Thank You For Connecting._|_END_COMMUNICATION") #Encript The Msg
+    connection.send(msgsend) #Send Msg
+
+s.close() #Close connection
+print("Connection Closed.")
