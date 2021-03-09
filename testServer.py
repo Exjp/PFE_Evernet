@@ -163,7 +163,7 @@ class ThreadClient(threading.Thread):
         msg = msg.split("_|_")
         if len(msg)>1:
             del msg[0]
-        if msg[0] == "":
+        if msg[0] == "" or msg[0] == '':
             self.connection.close()
             del conn_client[self.getName()]
             print("Client disconnected unexpectedly:", self.getName())
