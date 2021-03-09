@@ -197,17 +197,7 @@ def verifyInvitationKey(invitation_key):
 
 
 def main():
-    addUser("Thierry","mdp", "+33666666266", "key")
-    addUser("Thierry2","mdp", "+33666666666", "key1")
-    addUser("Thierry3","mdp", "+33666665666", "key2") 
-    addUser("Thierry4","mdp", "+33666663666", "key3")
-    x = randomUsers(3, "Thierry")
-    print(x)
-    # name = ""
-    # print(getAliasFromNumber(name))
-    init()
-    treeWrite()
-
+    
 if __name__ == "__main__":
     init()
     main()
