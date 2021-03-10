@@ -14,6 +14,8 @@ if len(sys.argv)>1:
     if sys.argv[1] == "localhost":
         HOST = 'localhost'
         PORT = 50000
+    else:
+        HOST = sys.argv[1]
 print("HOST: " + HOST + " Port: " + str(PORT))
 
 
@@ -194,7 +196,10 @@ class ThreadClient(threading.Thread):
         to_send += "_|_END_COMMUNICATION"
         to_send=jpysocket.jpyencode(to_send)
         #print(msg)
-        connection.send(to_send)
+        try:
+            connection.send(to_send)
+        except:
+            print("ERROR while sending message")
 
     def run(self):
         nom = self.getName()
@@ -240,7 +245,7 @@ try:
 except socket.error:
     print("La liaison du socket à l'adresse choisie a échoué.")
     sys.exit()
-s.listen(500)
+s.listen(100)
 
 if(s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)):
     print("setsockopt error")
