@@ -70,11 +70,11 @@ TEST SIGNIN
 def testSignInWorking():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     deconnection()
     connection()
     send("signIn alias_test2 mdp_test2 1123456789 martin")
-    msgTmp = receive()
+    receive()
     send("getPhoneNum alias_test")
     msg = receive()
     if msg[0] != "0123456789":
@@ -107,7 +107,7 @@ def testSignInErrorFormat():
 def testSignInErrorAlreadyLog():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
-    msgTmp = receive()
+    receive()
     send("signIn alias_test mdp_test 0123456789 martin")
     msg = receive()
     if msg[0] != "ERROR 1":
@@ -121,7 +121,7 @@ def testSignInErrorAlreadyLog():
 def testSignInErrorAlreadyExists():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
-    msgTmp = receive()
+    receive()
     deconnection()
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
@@ -141,7 +141,7 @@ TEST LOGIN
 def testLogInWorking():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
-    msgTmp= receive()
+    receive()
     deconnection()
     connection()
     send("logIn alias_test mdp_test")
@@ -157,7 +157,7 @@ def testLogInWorking():
 def testLogInErrorFormat():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
-    msgTmp= receive()
+    receive()
     deconnection()
     connection()
     send("logIn alias_test mdp_test coucou")
@@ -173,7 +173,7 @@ def testLogInErrorFormat():
 def testLogInErrorAlreadyLog():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
-    msgTmp= receive()
+    receive()
     send("logIn alias_test mdp_test")
     msg = receive()
     if msg[0] != ("ERROR 1"):
@@ -188,7 +188,7 @@ def testLogInErrorAlreadyLog():
 def testLogInErrorWrongLog():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
-    msgTmp= receive()
+    receive()
     deconnection()
     connection()
     send("logIn alias_test wrong_mdp_test")
@@ -209,11 +209,11 @@ TEST GETPHONENUM
 def testGetPhoneNumWorking():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     deconnection()
     connection()
     send("signIn alias_test2 mdp_test2 1123456789 martin")
-    msgTmp = receive()
+    receive()
     send("getPhoneNum alias_test")
     msg = receive()
     if msg[0] != "0123456789":
@@ -227,11 +227,11 @@ def testGetPhoneNumWorking():
 def testGetPhoneNumErrorFormat():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     deconnection()
     connection()
     send("signIn alias_test2 mdp_test2 1123456789 martin")
-    msgTmp = receive()
+    receive()
     send("getPhoneNum alias_test coucou")
     msg = receive()
     if msg[0] != "ERROR 3":
@@ -245,7 +245,7 @@ def testGetPhoneNumErrorFormat():
 def testGetPhoneNumErrorPermission():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     deconnection()
     connection()
     send("getPhoneNum alias_test")
@@ -265,14 +265,15 @@ TEST GETPHONENUMLIST
 def testGetPhoneNumListWorking():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     deconnection()
     connection()
     send("signIn alias_test2 mdp_test2 1123456789 martin")
+    receive()
     deconnection()
     connection()
     send("signIn alias_test3 mdp_test3 2123456789 martin")
-    msgTmp = receive()
+    receive()
     send("getPhoneNumList 2")
     msg = receive()
     if (msg[0] != "0123456789" and msg[0] != "1123456789") or (msg[3] != "0123456789" and msg[3] != "1123456789"):
@@ -286,14 +287,15 @@ def testGetPhoneNumListWorking():
 def testGetPhoneNumListErrorFormat():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     deconnection()
     connection()
     send("signIn alias_test2 mdp_test2 1123456789 martin")
+    receive()
     deconnection()
     connection()
     send("signIn alias_test3 mdp_test3 2123456789 martin")
-    msgTmp = receive()
+    receive()
     send("getPhoneNumList 2 coucou")
     msg = receive()
     #print(msg)
@@ -308,10 +310,11 @@ def testGetPhoneNumListErrorFormat():
 def testGetPhoneNumListErrorPermission():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     deconnection()
     connection()
     send("signIn alias_test2 mdp_test2 1123456789 martin")
+    receive()
     deconnection()
     connection()
     send("getPhoneNumList 2")
@@ -395,7 +398,6 @@ print("Test de l'erreur user already exists : " + str(testSignInErrorAlreadyExis
 print("----------Fonction logIn----------")
 print("Test de logIn : " + str(testLogInWorking()))
 print("Test de l'erreur de format : " + str(testLogInErrorFormat()))
-print("Test de l'erreur already log : " + str(testLogInErrorAlreadyLog()))
 print("Test de l'erreur wrong log : " + str(testLogInErrorWrongLog()))
 print("----------Fonction getPhoneNum----------")
 print("Test getPhoneNum : " + str(testGetPhoneNumWorking()))
