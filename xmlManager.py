@@ -42,8 +42,14 @@ def numberUnique(numberValue):
     unique = True
     for elem in root:
         if elem.attrib['number'] == numberValue:
+            
             unique = False
     return unique
+
+def formatNumber(number):
+    if re.match( r'\+?(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)?\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*(\d{1,2})$', number) == None:
+        return False
+    return True
 
 def keyUnique(keyValue):
     unique = True
@@ -56,11 +62,10 @@ def keyUnique(keyValue):
 # vérifier que les champs sont corrects
 # return string sur les fonction selon l'erreur
 def addUser(aliasValue, passValue, numberValue, keyValue):
-    if aliasUnique(aliasValue) and numberUnique(numberValue) and keyUnique(keyValue):
+    if aliasUnique(aliasValue) and numberUnique(numberValue) and keyUnique(keyValue) and formatNumber(numberValue):
         user = ET.Element('user')
         user.set("alias", aliasValue)
         user.set("banned", "False")
-
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(passValue.encode('utf-8'), salt)
         user.set("password", hashed_password.decode('utf8'))
@@ -133,7 +138,7 @@ def getNumberFromAlias(name):
 
 
 def getAliasFromNumber(number):
-    if re.match( r'/([0-9\s\-]{7,})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?$/', number, re.M|re.I):
+    if re.match( r'\+?(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)?\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*(\d{1,2})$', number) == None:
         return "Error : Wrong number format"
 
     for elem in root:
@@ -194,7 +199,7 @@ def verifyInvitationKey(invitation_key):
 
 
 def main():
-    print("C'est la faute de Jak.")
+   print("C'est la faute de Jak.")
 
 if __name__ == "__main__":
     init()
