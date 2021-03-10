@@ -14,8 +14,6 @@ if len(sys.argv)>1:
     if sys.argv[1] == "localhost":
         HOST = 'localhost'
         PORT = 50000
-    else:
-        HOST = sys.argv[1]
 print("HOST: " + HOST + " Port: " + str(PORT))
 
 
@@ -137,11 +135,11 @@ class ThreadClient(threading.Thread):
             self.sendMessage(strList)
 
         elif  cmd[0] == "clearDB":
-            if len(argv) != 2:
+            if len(sys.argv) != 2:
                 print("Permission denied!")
                 self.sendMessage("ERROR 2_|_Permission denied!")
                 return
-            if argv[1] == "test":
+            if sys.argv[1] == "test":
                 xmlM.reset()
 
 
