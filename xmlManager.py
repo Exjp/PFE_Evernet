@@ -70,7 +70,7 @@ def addUser(aliasValue, passValue, numberValue, keyValue):
         root.append(user)
         treeWrite()
     else :
-        return "User already exists"
+        return "Error : User already exists"
 
 
 # return un erreur si pas trouvé, nullptr, verif le nom en entrée
@@ -93,7 +93,7 @@ def login(alias, password):
         if elem.attrib['alias'] == alias:
             if bcrypt.checkpw(password.encode('utf8'), elem.attrib['password'].encode()):
                 return True
-    return "Wrong alias or password"
+    return "Error : Wrong alias or password"
 
 
 #return erreur si deja unban avant l'ecriture
@@ -134,7 +134,7 @@ def getNumberFromAlias(name):
 
 def getAliasFromNumber(number):
     if re.match( r'/([0-9\s\-]{7,})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?$/', number, re.M|re.I):
-        return "Wrong number format"
+        return "Error : Wrong number format"
 
     for elem in root:
         if elem.attrib['number'] == number and elem.attrib['banned'] == "False":
@@ -146,26 +146,26 @@ def getKeyFromAlias(name):
     for elem in root:
         if elem.attrib['alias'] == name and elem.attrib['banned'] == "False":
             return elem.attrib['key']
-    return "Error getKeyFromAlias : alias not found"
+    return "Error : alias not found"
 
 
 def getAliases():
     listAliases = [elem.attrib['alias'] for elem in root]
     if listAliases == []:
-        return "Error getAliases() : Tree empty"
+        return "Error : Tree empty"
     return listAliases
 
 
 def randomUsers(num,sender):
     listAlias = getAliases()
     if listAlias == "Error getAliases() : Tree empty":
-        return "Error randomUsers() : randoTree empty"
+        return "Error : randoTree empty"
     try:
         listAlias.pop(listAlias.index(sender))
     except IndexError:
-        return "Error randomUsers() : Index Error"
+        return "Error : Index Error"
     except ValueError:
-        return "Error randomUsers() : Sender is not in the tree"
+        return "Error : Sender is not in the tree"
 
     num = int(num)
     sizeListAlias = len(listAlias)
@@ -173,7 +173,7 @@ def randomUsers(num,sender):
 
 
     if num > sizeListAlias & num <= 0:
-        return "Error randomUsers() : Not enough numbers in database..."
+        return "Error : Not enough numbers in database..."
 
     cnt=0
     aleaIndList = random.sample(range(sizeListAlias), num)
