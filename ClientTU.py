@@ -48,14 +48,11 @@ def connection():
 
 def deconnection():
     global mySocket
-    send("clearDB")
     send("FIN")
     msg = receive()
     if msg[0] == "FIN":
         mySocket.close()
         mySocket = None
-
-
 
 
 """
@@ -75,15 +72,16 @@ def testSignInWorking():
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
     msgTmp = receive()
     deconnection()
-    time.sleep(0.2)
     connection()
     send("signIn alias_test2 mdp_test2 1123456789 martin")
     msgTmp = receive()
     send("getPhoneNum alias_test")
     msg = receive()
     if msg[0] != "0123456789":
+        send("clearDB")
         deconnection()
         return False
+    send("clearDB")
     deconnection()
     return True
 
@@ -92,13 +90,16 @@ def testSignInErrorFormat():
     send("signIn alias_test mdp_test martin")
     msg = receive()
     if msg[0] != "ERROR 3":
+        send("clearDB")
         deconnection()
         return False
     send("signIn alias_test mdp_test 0123456789 martin coucou")
     msg = receive()
     if msg[0] != "ERROR 3":
+        send("clearDB")
         deconnection()
         return False
+    send("clearDB")
     deconnection()
     return True
 
@@ -107,13 +108,29 @@ def testSignInErrorAlreadyLog():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
     msgTmp = receive()
-    print(msgTmp)
     send("signIn alias_test mdp_test 0123456789 martin")
     msg = receive()
-    print(msg)
     if msg[0] != "ERROR 1":
+        send("clearDB")
         deconnection()
         return False
+    send("clearDB")
+    deconnection()
+    return True
+
+def testSignInErrorAlreadyExists():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin")
+    msgTmp = receive()
+    deconnection()
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin")
+    msg = receive()
+    if msg[0] != "ERROR 5":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
     deconnection()
     return True
 
@@ -123,33 +140,122 @@ TEST LOGIN
 
 def testLogInWorking():
     connection()
-    send("clear")
     send("signIn alias_test mdp_test 0123456789 martin")
     msgTmp= receive()
     deconnection()
     connection()
     send("logIn alias_test mdp_test")
+    msg = receive()
+    if msg[0] != ("Authentified"):
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
+def testLogInErrorFormat():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin")
     msgTmp= receive()
+    deconnection()
+    connection()
+    send("logIn alias_test mdp_test coucou")
+    msg = receive()
+    if msg[0] != ("ERROR 3"):
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
     deconnection()
     return True
 
 def testLogInErrorAlreadyLog():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin")
+    msgTmp= receive()
+    send("logIn alias_test mdp_test")
+    msg = receive()
+    if msg[0] != ("ERROR 1"):
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
     return True
-
-def testLogInErrorFormat():
     return True
 
 def testLogInErrorWrongLog():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin")
+    msgTmp= receive()
+    deconnection()
+    connection()
+    send("logIn alias_test wrong_mdp_test")
+    msg = receive()
+    if msg[0] != ("ERROR 4"):
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
     return True
 
 """
-TEST GETNB
+TEST GETPHONENUM
 """
 
-def testGetNbWorking():
+def testGetPhoneNumWorking():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    deconnection()
+    connection()
+    send("signIn alias_test2 mdp_test2 1123456789 martin")
+    msgTmp = receive()
+    send("getPhoneNum alias_test")
+    msg = receive()
+    if msg[0] != "0123456789":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
     return True
 
-def testGetNbErrorPermission():
+def testGetPhoneNumErrorFormat():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    deconnection()
+    connection()
+    send("signIn alias_test2 mdp_test2 1123456789 martin")
+    msgTmp = receive()
+    send("getPhoneNum alias_test coucou")
+    msg = receive()
+    if msg[0] != "ERROR 3":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
+def testGetPhoneNumErrorPermission():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    deconnection()
+    connection()
+    send("getPhoneNum alias_test")
+    msg = receive()
+    if msg[0] != "ERROR 2":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
     return True
 
 """
@@ -157,23 +263,118 @@ TEST GETPHONENUMLIST
 """
 
 def testGetPhoneNumListWorking():
-    return True
-
-def testGetPhoneNumListErrorPermission():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    deconnection()
+    connection()
+    send("signIn alias_test2 mdp_test2 1123456789 martin")
+    deconnection()
+    connection()
+    send("signIn alias_test3 mdp_test3 2123456789 martin")
+    msgTmp = receive()
+    send("getPhoneNumList 2")
+    msg = receive()
+    if (msg[0] != "0123456789" and msg[0] != "1123456789") or (msg[3] != "0123456789" and msg[3] != "1123456789"):
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
     return True
 
 def testGetPhoneNumListErrorFormat():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    deconnection()
+    connection()
+    send("signIn alias_test2 mdp_test2 1123456789 martin")
+    deconnection()
+    connection()
+    send("signIn alias_test3 mdp_test3 2123456789 martin")
+    msgTmp = receive()
+    send("getPhoneNumList 2 coucou")
+    msg = receive()
+    #print(msg)
+    if msg[0] != "ERROR 3":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
     return True
+
+def testGetPhoneNumListErrorPermission():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    deconnection()
+    connection()
+    send("signIn alias_test2 mdp_test2 1123456789 martin")
+    deconnection()
+    connection()
+    send("getPhoneNumList 2")
+    msg = receive()
+    #print(msg)
+    if msg[0] != "ERROR 2":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
 
 """
 TEST GETINVITATIONKEY
 """
 
 def testGetInvitationKeyWorking():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    send("getInvitationKey")
+    msg = receive()
+    if msg[0] != "martin":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
+def testGetInvitationKeyErrorFormat():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    send("getInvitationKey coucou")
+    msg = receive()
+    if msg[0] != "ERROR 3":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
     return True
 
 def testGetInvitationKeyErrorPermission():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    msgTmp = receive()
+    deconnection()
+    connection()
+    send("getInvitationKey")
+    msg = receive()
+    if msg[0] != "ERROR 2":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
     return True
+
+
 time.sleep(3)
 if os.path.exists("page.xml"):
     os.remove("page.xml")
@@ -190,7 +391,21 @@ print("----------Fonction signIn----------")
 print("Test de signIn : " + str(testSignInWorking()))
 print("Test de l'erreur de format : " + str(testSignInErrorFormat()))
 print("Test de l'erreur already log : " + str(testSignInErrorAlreadyLog()))
+print("Test de l'erreur user already exists : " + str(testSignInErrorAlreadyExists()))
 print("----------Fonction logIn----------")
-print("----------Fonction getNb----------")
+print("Test de logIn : " + str(testLogInWorking()))
+print("Test de l'erreur de format : " + str(testLogInErrorFormat()))
+print("Test de l'erreur already log : " + str(testLogInErrorAlreadyLog()))
+print("Test de l'erreur wrong log : " + str(testLogInErrorWrongLog()))
+print("----------Fonction getPhoneNum----------")
+print("Test getPhoneNum : " + str(testGetPhoneNumWorking()))
+print("Test de l'erreur de format : " + str (testGetPhoneNumErrorFormat()))
+print("Test de l'erreur de permission : " + str(testGetPhoneNumErrorPermission()))
 print("----------Fonction getPhoneNumList----------")
-print("----------Fonction getInvitationalKey----------")
+print("Test de getPhoneNumList : " + str(testGetPhoneNumListWorking()))
+print("Test de l'erreur de format : " + str(testGetPhoneNumListErrorFormat()))
+print("Test de l'erreur de permission : " + str(testGetPhoneNumListErrorPermission()))
+print("----------Fonction getInvitationKey----------")
+print("Test de getInvitationKey : " + str(testGetInvitationKeyWorking()))
+print("Test de l'erreur de format : " + str(testGetInvitationKeyErrorFormat()))
+print("Test de l'erreur de permission : " + str(testGetInvitationKeyErrorPermission()))

@@ -54,6 +54,10 @@ class ThreadClient(threading.Thread):
                 print("ERROR 2_|_Permission denied!")
                 self.sendMessage("ERROR 2_|_Permission denied!")
                 return
+            if len(cmd) != 1:
+                print("ERROR 3_|_Wrong input format: getInvitationKey")
+                self.sendMessage("ERROR 3_|_Wrong input format: getInvitationKey")
+                return
             self.sendMessage("martin")
 
 
@@ -81,12 +85,9 @@ class ThreadClient(threading.Thread):
             keyCert = cert_str + "_|_" + key_str + "_|_" + ca_cert_str
             self.sendMessage(keyCert)
 
-
             #si pas d'erreur
             self.logged = True
             self.alias = cmd[1]
-
-
 
 
         elif cmd[0] == "logIn":
@@ -111,7 +112,7 @@ class ThreadClient(threading.Thread):
 
         elif cmd[0] == "getPhoneNumList":
             if not self.logged:
-                print("Permission denied!")
+                print("ERROR 2_|_Permission denied!")
                 self.sendMessage("ERROR 2_|_Permission denied!")
                 return
             if len(cmd) != 2:
@@ -132,14 +133,14 @@ class ThreadClient(threading.Thread):
                     strList += "_|_"
                     strList += list[x][1]
             self.sendMessage(strList)
+
         elif sys.argv[1] == "test" and cmd[0] == "clearDB":
-            xmlM.emptyXml()
+            xmlM.reset()
 
 
         else:
             print("Invalid callBack")
             self.sendMessage("Invalid callBack")
-
 
     def receive(self):
         try:
