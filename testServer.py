@@ -14,6 +14,8 @@ if len(sys.argv)>1:
     if sys.argv[1] == "localhost":
         HOST = 'localhost'
         PORT = 50000
+    else:
+        HOST = sys.argv[1]
 print("HOST: " + HOST + " Port: " + str(PORT))
 
 
@@ -134,8 +136,13 @@ class ThreadClient(threading.Thread):
                     strList += list[x][1]
             self.sendMessage(strList)
 
-        elif sys.argv[1] == "test" and cmd[0] == "clearDB":
-            xmlM.reset()
+        elif  cmd[0] == "clearDB":
+            if len(argv) != 2:
+                print("Permission denied!")
+                self.sendMessage("ERROR 2_|_Permission denied!")
+                return
+            if argv[1] == "test":
+                xmlM.reset()
 
 
         else:
@@ -145,6 +152,7 @@ class ThreadClient(threading.Thread):
     def receive(self):
         try:
             msg=connection.recv(1024)
+            print(msg)
             try:
                 msg=jpysocket.jpydecode(msg)
             except:
@@ -157,7 +165,7 @@ class ThreadClient(threading.Thread):
         msg = msg.split("_|_")
         if len(msg)>1:
             del msg[0]
-        if msg[0] == "":
+        if msg[0] == "" or msg[0] == '':
             self.connection.close()
             del conn_client[self.getName()]
             print("Client disconnected unexpectedly:", self.getName())
@@ -175,7 +183,9 @@ class ThreadClient(threading.Thread):
             else:
                 msg.remove('BEGIN_COMMUNICATION')
                 break
+
         del msg[-1]
+        print(msg)
         return msg
 
 
@@ -185,7 +195,10 @@ class ThreadClient(threading.Thread):
         to_send += "_|_END_COMMUNICATION"
         to_send=jpysocket.jpyencode(to_send)
         #print(msg)
-        connection.send(to_send)
+        try:
+            connection.send(to_send)
+        except:
+            print("ERROR while sending message")
 
     def run(self):
         nom = self.getName()
@@ -231,7 +244,7 @@ try:
 except socket.error:
     print("La liaison du socket à l'adresse choisie a échoué.")
     sys.exit()
-s.listen(500)
+s.listen(100)
 
 if(s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)):
     print("setsockopt error")

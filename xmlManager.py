@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import os
 import random
 import bcrypt
+import re
 
 def init():
     if not os.path.isfile('page.xml'):
@@ -53,8 +54,7 @@ def keyUnique(keyValue):
 
 
 # vérifier que les champs sont corrects
-# return string sur les fonction selon l'erreur, ou un string (ou juste true) qui dit que c'est bon / message si l'alias dans login() existe
-# -> a faire dans toutes les fonctions appelees par le client
+# return string sur les fonction selon l'erreur
 def addUser(aliasValue, passValue, numberValue, keyValue):
     if aliasUnique(aliasValue) and numberUnique(numberValue) and keyUnique(keyValue):
         user = ET.Element('user')
@@ -69,9 +69,8 @@ def addUser(aliasValue, passValue, numberValue, keyValue):
 
         root.append(user)
         treeWrite()
-        return "User successfully added"
     else :
-        return "Error : User already exists"
+        return "User already exists"
 
 
 # return un erreur si pas trouvé, nullptr, verif le nom en entrée
@@ -79,13 +78,14 @@ def removeUserFromName(name):
     for elem in root:
         if elem.attrib['alias'] == name:
             root.remove(elem)
-    treeWrite()
+    return "Error : User not found"
 
+# return un erreur si pas trouvé, nullptr, verif le nom en entrée
 def removeUserFromNumber(number):
     for elem in root:
         if elem.attrib['number'] == number:
             root.remove(elem)
-    treeWrite()
+    return "Error : User not found"
 
 # return une info si utilisateur banni
 def login(alias, password):
@@ -93,22 +93,22 @@ def login(alias, password):
         if elem.attrib['alias'] == alias:
             if bcrypt.checkpw(password.encode('utf8'), elem.attrib['password'].encode()):
                 return True
-    return False
+    return "Wrong alias or password"
 
 
-#return erreur si non trouve ou deja ban(et ecrit pas du coup)
+#return erreur si deja unban avant l'ecriture
 def banUser(alias):
     for elem in root:
         if elem.attrib['alias'] == alias:
             elem.attrib['banned'] = "True"
-    treeWrite()
+    return "Error : alias not found"
 
-#return erreur si non trouve ou deja unban(et ecrit pas du coup)
+#return erreur si deja unban avant l'ecriture
 def unBanUser(alias):
     for elem in root:
         if elem.attrib['alias'] == alias:
             elem.attrib['banned'] = "False"
-    treeWrite()
+    return "Error : alias not found"
 
 # erreur si existe pas ?
 def isBanned(alias):
@@ -124,16 +124,18 @@ def exists(alias):
     return False
 
 
-# verif que les user soient pas ban avant de les renvoyer
-# verifier les noms en entrée (nullptr, trop gros, non utf8)
+# verifier les noms en entrée (nullptr, trop gros, non utf8) / erreur differente si l user est ban
 def getNumberFromAlias(name):
     for elem in root:
         if elem.attrib['alias'] == name and elem.attrib['banned'] == "False":
             return elem.attrib['number']
     return "Error : alias not found"
 
-# verifier les numeros en entrée
+
 def getAliasFromNumber(number):
+    if re.match( r'/([0-9\s\-]{7,})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?$/', number, re.M|re.I):
+        return "Wrong number format"
+
     for elem in root:
         if elem.attrib['number'] == number and elem.attrib['banned'] == "False":
             return elem.attrib['alias']
@@ -144,27 +146,34 @@ def getKeyFromAlias(name):
     for elem in root:
         if elem.attrib['alias'] == name and elem.attrib['banned'] == "False":
             return elem.attrib['key']
-    return "Error : alias not found"
+    return "Error getKeyFromAlias : alias not found"
 
 
-#return une liste des alias dans la bdd, erreur si y'a personne dans la bdd
-#pas teste
 def getAliases():
-    return [elem.attrib['alias'] for elem in root if elem.attrib['banned']=="False"]
+    listAliases = [elem.attrib['alias'] for elem in root]
+    if listAliases == []:
+        return "Error getAliases() : Tree empty"
+    return listAliases
 
 
-#erreur si le sender est ban (try catch avec isBanned(sender) / erreur si le sender existe pas
 def randomUsers(num,sender):
     listAlias = getAliases()
-    listAlias.pop(listAlias.index(sender))
+    if listAlias == "Error getAliases() : Tree empty":
+        return "Error randomUsers() : randoTree empty"
+    try:
+        listAlias.pop(listAlias.index(sender))
+    except IndexError:
+        return "Error randomUsers() : Index Error"
+    except ValueError:
+        return "Error randomUsers() : Sender is not in the tree"
 
     num = int(num)
     sizeListAlias = len(listAlias)
     tmpList = [[0 for x in range(2)] for y in range(num)]
 
 
-    if num > sizeListAlias:
-        return "Not enough numbers in database..."
+    if num > sizeListAlias & num <= 0:
+        return "Error randomUsers() : Not enough numbers in database..."
 
     cnt=0
     aleaIndList = random.sample(range(sizeListAlias), num)
@@ -185,9 +194,9 @@ def verifyInvitationKey(invitation_key):
 
 
 def main():
-    x = randomUsers(4, "Roger")
-    print(x)
+    print("C'est la faute de Jak.")
 
 if __name__ == "__main__":
     init()
     main()
+
