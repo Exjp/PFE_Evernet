@@ -100,7 +100,7 @@ class ThreadClient(threading.Thread):
                 self.sendMessage("ERROR 3_|_Wrong input format: logIn_|_*alias*_|_*password*")
                 return
             res = xmlM.login(cmd[1], cmd[2])
-            if not res:
+            if res == "Error : Wrong alias or password":
                 print("ERROR 4_|_Wrong alias or password")
                 self.sendMessage("ERROR 4_|_Wrong alias or password")
             else:
@@ -120,6 +120,7 @@ class ThreadClient(threading.Thread):
                 self.sendMessage("ERROR 3_|_Wrong input format: getPhoneNumList_|_*n_numbers*")
                 return
             list = xmlM.randomUsers(cmd[1], self.alias)
+            print(list)
             if len(list) <1:
                 return False
             strList = ""
@@ -135,13 +136,36 @@ class ThreadClient(threading.Thread):
             self.sendMessage(strList)
 
         elif  cmd[0] == "clearDB":
-            if len(sys.argv) != 2:
-                print("Permission denied!")
+            if len(cmd) != 2:
+                print("ERROR 2_|_Permission denied!")
                 self.sendMessage("ERROR 2_|_Permission denied!")
                 return
             if sys.argv[1] == "test":
                 xmlM.reset()
 
+        elif cmd[0] == "getAllAlias":
+            if len(cmd) != 2:
+                print("ERROR 3_|_Wrong input format: getAllAlias_|_*password*")
+                self.sendMessage("ERROR 3_|_Wrong input format: getAllAlias_|_*password*")
+                return
+            if cmd[1] != "YpOi0TLHHgJFzgKYCBCrSNHPPRTSEjyt9OHp23WouuVa8tS1emL93WgJXiKLp6n00rkEAriyYQ9JGJfU23GrH43EOUci6k5uNTk5":
+                print("ERROR 4_|_Wrong password")
+                self.sendMessage("ERROR 4_|_Wrong password")
+                return
+            res = xmlM.getAliases()
+            if res == "Error : Tree empty":
+                print("ERROR 6_|_BDD empty")
+                self.sendMessage("ERROR 6_|_BDD empty")
+                return
+            to_send = ""
+            if len(res) <= 1:
+                to_send += str(res[0])
+            else:
+                 to_send += str(res[0])
+                 for i in range(1, len(res)):
+                     to_send += "_|_"
+                     to_send += res[i]
+            self.sendMessage(to_send)
 
         else:
             print("Invalid callBack")
@@ -158,7 +182,7 @@ class ThreadClient(threading.Thread):
                 return False
         except:
             print("error while receive")
-            return False
+            return "error while receive"
 
         msg = msg.split("_|_")
         if len(msg)>1:
@@ -205,6 +229,8 @@ class ThreadClient(threading.Thread):
             message = str(datetime.datetime.now())
             message += " : %s> %s" % (nom, msgClient)
             print(message)
+            if msgClient == "error while receive":
+                break
             if msgClient == False:
                 print("receive error")
                 self.sendMessage("ERROR")
@@ -242,7 +268,7 @@ try:
 except socket.error:
     print("La liaison du socket à l'adresse choisie a échoué.")
     sys.exit()
-s.listen(100)
+s.listen(999)
 
 if(s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)):
     print("setsockopt error")
