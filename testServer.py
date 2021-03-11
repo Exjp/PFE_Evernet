@@ -458,7 +458,6 @@ def printValide(b):
     else:
         print("INVALIDE")
 
-time.sleep(3)
 if os.path.exists("page.xml"):
     os.remove("page.xml")
 
