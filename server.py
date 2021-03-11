@@ -161,7 +161,7 @@ class ThreadClient(threading.Thread):
                 print("ERROR 3_|_Wrong input format: getAllAlias_|_*password*")
                 self.sendMessage("ERROR 3_|_Wrong input format: getAllAlias_|_*password*")
                 return
-            if cmd[1] != "YpOi0TLHHgJFzgKYCBCrSNHPPRTSE":
+            if cmd[1] != "YpOi0TLHHgJFzgKYCBCrSNHPPRTSEjyt9OHp23WouuVa8tS1emL93WgJXiKLp6n00rkEAriyYQ9JGJfU23GrH43EOUci6k5uNTk5":
                 print("ERROR 4_|_Wrong password")
                 self.sendMessage("ERROR 4_|_Wrong password")
                 return
@@ -189,7 +189,7 @@ class ThreadClient(threading.Thread):
             msg=connection.recv(1024)
             print(msg)
             try:
-                msg=jpysocket.jpydecode(msg)
+                msg=msg.decode("utf-8", errors="ignore")
             except:
                 print("error while decode received message: " + str(msg))
                 return False
@@ -208,7 +208,7 @@ class ThreadClient(threading.Thread):
         while msg[-1] != "END_COMMUNICATION":
             tmp = connection.recv(1024)
             try:
-                msg += jpysocket.jpydecode(tmp).split("_|_")
+                msg += tmp.decode("utf-8", errors="ignore").split("_|_")
             except:
                 print("error while decode received message: " + str(msg) + " + " + str(tmp))
                 return False
@@ -294,7 +294,7 @@ while 1:
     connection,address=s.accept()
     th = ThreadClient(connection)
     th.start()
-    print(str(datetime.datetime.now()) + "Connected To: " + str(address[0]) + " on port: " + str(address[1]) + " on thread: " + str(th.getName()))
+    print(str(datetime.datetime.now()) + " Connected To: " + str(address[0]) + " on port: " + str(address[1]) + " on thread: " + str(th.getName()))
     it = th.getName()
     conn_client[it] = connection
     msgsend=jpysocket.jpyencode("_|_BEGIN_COMMUNICATION_|_You are connected._|_END_COMMUNICATION")
