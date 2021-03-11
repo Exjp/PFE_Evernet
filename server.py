@@ -206,12 +206,16 @@ class ThreadClient(threading.Thread):
             print("Client disconnected unexpectedly:", self.getName())
             sys.exit()
         while msg[-1] != "END_COMMUNICATION":
-            tmp = connection.recv(1024)
             try:
-                msg += tmp.decode("utf-8", errors="ignore").split("_|_")
+                tmp = connection.recv(1024)
+                try:
+                    msg += tmp.decode("utf-8", errors="ignore").split("_|_")
+                except:
+                    print("error while decode received message: " + str(msg) + " + " + str(tmp))
+                    return False
             except:
-                print("error while decode received message: " + str(msg) + " + " + str(tmp))
-                return False
+                print("error while receive 2")
+                return "error while receive 2"
         for x in msg:
             if x != "BEGIN_COMMUNICATION":
                 msg.remove(x)
