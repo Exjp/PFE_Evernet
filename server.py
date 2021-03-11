@@ -148,7 +148,7 @@ class ThreadClient(threading.Thread):
                 print("ERROR 3_|_Wrong input format: getAllAlias_|_*password*")
                 self.sendMessage("ERROR 3_|_Wrong input format: getAllAlias_|_*password*")
                 return
-            if cmd[1] != "YpOi0TLHHgJFzgKYCBCrSNHPPRTSEjyt9OHp23WouuVa8tS1emL93WgJXiKLp6n00rkEAriyYQ9JGJfU23GrH43EOUci6k5uNTk5":
+            if cmd[1] != "YpOi0TLHHgJFzgKYCBCrSNHPPRTSE":
                 print("ERROR 4_|_Wrong password")
                 self.sendMessage("ERROR 4_|_Wrong password")
                 return
@@ -232,7 +232,7 @@ class ThreadClient(threading.Thread):
             if msgClient == "error while receive":
                 break
             if msgClient == False:
-                print("receive error")
+                print("decode/split error")
                 self.sendMessage("ERROR")
             else:
                 if msgClient[-1].upper() == "FIN" or msgClient == None:
