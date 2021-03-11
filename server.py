@@ -1,6 +1,6 @@
 import sys, threading, os, datetime, time, socket
 import xmlManager as xmlM
-from pair_utils import *
+from pairUtils import *
 import jpysocket
 
 

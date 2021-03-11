@@ -1,4 +1,4 @@
-from rsa_utils import *
+from rsaUtils import *
 
 st = "This is a text to test our encrytion and decrytion functions!"
 print(st)
