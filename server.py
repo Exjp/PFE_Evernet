@@ -294,7 +294,7 @@ while 1:
     connection,address=s.accept()
     th = ThreadClient(connection)
     th.start()
-    print(str(datetime.datetime.now()) + " Connected To: " + str(address[0]) + " on port: " + str(address[1]) + " on thread: " + str(th.getName()))
+    print("\n" + str(datetime.datetime.now()) + " Connected To: " + str(address[0]) + " on port: " + str(address[1]) + " on thread: " + str(th.getName()) + "\n")
     it = th.getName()
     conn_client[it] = connection
     msgsend=jpysocket.jpyencode("_|_BEGIN_COMMUNICATION_|_You are connected._|_END_COMMUNICATION")
