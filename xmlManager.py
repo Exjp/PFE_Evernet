@@ -42,7 +42,6 @@ def numberUnique(numberValue):
     unique = True
     for elem in root:
         if elem.attrib['number'] == numberValue:
-            
             unique = False
     return unique
 
@@ -83,6 +82,7 @@ def removeUserFromName(name):
     for elem in root:
         if elem.attrib['alias'] == name:
             root.remove(elem)
+            return True
     return "Error : User not found"
 
 # return un erreur si pas trouvé, nullptr, verif le nom en entrée
@@ -90,6 +90,7 @@ def removeUserFromNumber(number):
     for elem in root:
         if elem.attrib['number'] == number:
             root.remove(elem)
+            return True
     return "Error : User not found"
 
 # return une info si utilisateur banni
@@ -106,6 +107,7 @@ def banUser(alias):
     for elem in root:
         if elem.attrib['alias'] == alias:
             elem.attrib['banned'] = "True"
+            return True
     return "Error : alias not found"
 
 #return erreur si deja unban avant l'ecriture
@@ -113,6 +115,7 @@ def unBanUser(alias):
     for elem in root:
         if elem.attrib['alias'] == alias:
             elem.attrib['banned'] = "False"
+            return True
     return "Error : alias not found"
 
 # erreur si existe pas ?
