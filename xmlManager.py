@@ -61,20 +61,27 @@ def keyUnique(keyValue):
 # vérifier que les champs sont corrects
 # return string sur les fonction selon l'erreur
 def addUser(aliasValue, passValue, numberValue, keyValue):
-    if aliasUnique(aliasValue) and numberUnique(numberValue) and keyUnique(keyValue) and formatNumber(numberValue):
-        user = ET.Element('user')
-        user.set("alias", aliasValue)
-        user.set("banned", "False")
-        salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(passValue.encode('utf-8'), salt)
-        user.set("password", hashed_password.decode('utf8'))
-        user.set("number", numberValue)
-        user.set("key", keyValue)
-
-        root.append(user)
-        treeWrite()
-    else :
+    if aliasUnique(aliasValue) != True:
         return "Error : User already exists"
+    if numberUnique(numberValue) != True:
+        return "Error : Number already exists"
+    if keyUnique(keyValue) != True:
+        return "Error : Key already exists"
+    if formatNumber(numberValue) != True:
+        return "Error : Number format incorrect"
+    user = ET.Element('user')
+    user.set("alias", aliasValue)
+    user.set("banned", "False")
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(passValue.encode('utf-8'), salt)
+    user.set("password", hashed_password.decode('utf8'))
+    user.set("number", numberValue)
+    user.set("key", keyValue)
+
+    root.append(user)
+    treeWrite()
+    return True
+    
 
 
 # return un erreur si pas trouvé, nullptr, verif le nom en entrée
@@ -202,8 +209,7 @@ def verifyInvitationKey(invitation_key):
 
 
 def main():
-   print("C'est la faute de Jak.")
-
+    print("C'est la faute de Jak.")
 if __name__ == "__main__":
     init()
     main()
