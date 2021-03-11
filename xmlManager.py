@@ -62,7 +62,7 @@ def keyUnique(keyValue):
 # return string sur les fonction selon l'erreur
 def addUser(aliasValue, passValue, numberValue, keyValue):
     if aliasUnique(aliasValue) != True:
-        return "Error : User already exists"
+        return "Error : Alias already exists"
     if numberUnique(numberValue) != True:
         return "Error : Number already exists"
     if keyUnique(keyValue) != True:
@@ -81,7 +81,7 @@ def addUser(aliasValue, passValue, numberValue, keyValue):
     root.append(user)
     treeWrite()
     return True
-    
+
 
 
 # return un erreur si pas trouvé, nullptr, verif le nom en entrée
@@ -213,4 +213,3 @@ def main():
 if __name__ == "__main__":
     init()
     main()
-
