@@ -78,16 +78,29 @@ class ThreadClient(threading.Thread):
             os.remove(cmd[1]+"_crt.pem")
             os.remove(cmd[1]+"_key.pem")
             res = xmlM.addUser(cmd[1], cmd[2], cmd[3], cert_str)
-            if res == "Error : User already exists":
-                print("ERROR 5_|_User already exists")
-                self.sendMessage("ERROR 5_|_User already exists")
+            if res == "Error : Alias already exists":
+                print("ERROR 5_|_Alias already exists")
+                self.sendMessage("ERROR 5_|_Alias already exists")
                 return
-            keyCert = cert_str + "_|_" + key_str + "_|_" + ca_cert_str
-            self.sendMessage(keyCert)
+            elif res == "Error : Number already exists":
+                print("ERROR 5_|_Number already exists")
+                self.sendMessage("ERROR 5_|_Number already exists")
+                return
+            elif res == "Error : Key already exists":
+                print("ERROR 5_|_Key already exists")
+                self.sendMessage("ERROR 5_|_Key already exists")
+                return
+            elif res == "Error : Number format incorrect":
+                print("ERROR 3_|_Number format incorrect")
+                self.sendMessage("ERROR 3_|_Number format incorrect")
+                return
+            else:
+                keyCert = cert_str + "_|_" + key_str + "_|_" + ca_cert_str
+                self.sendMessage(keyCert)
 
-            #si pas d'erreur
-            self.logged = True
-            self.alias = cmd[1]
+                #si pas d'erreur
+                self.logged = True
+                self.alias = cmd[1]
 
 
         elif cmd[0] == "logIn":
@@ -274,10 +287,6 @@ if(s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)):
     print("setsockopt error")
 
 print("Serveur prêt, en attente de requêtes ...")
-
-
-
-
 
 
 conn_client = {}
