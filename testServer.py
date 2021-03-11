@@ -120,7 +120,6 @@ class ThreadClient(threading.Thread):
                 self.sendMessage("ERROR 3_|_Wrong input format: getPhoneNumList_|_*n_numbers*")
                 return
             list = xmlM.randomUsers(cmd[1], self.alias)
-            print(list)
             if len(list) <1:
                 return False
             strList = ""
@@ -136,9 +135,9 @@ class ThreadClient(threading.Thread):
             self.sendMessage(strList)
 
         elif  cmd[0] == "clearDB":
-            if len(cmd) != 2:
-                print("ERROR 2_|_Permission denied!")
-                self.sendMessage("ERROR 2_|_Permission denied!")
+            if len(cmd) != 1:
+                print("ERROR 3_|_Wrong input format: clearDB")
+                self.sendMessage("ERROR 3_|_Wrong input format: clearDB")
                 return
             if sys.argv[1] == "test":
                 xmlM.reset()
