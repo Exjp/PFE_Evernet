@@ -103,7 +103,6 @@ def testSignInErrorFormat():
     deconnection()
     return True
 
-
 def testSignInErrorAlreadyLog():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
@@ -328,7 +327,6 @@ def testGetPhoneNumListErrorPermission():
     deconnection()
     return True
 
-
 """
 TEST GETINVITATIONKEY
 """
@@ -336,7 +334,7 @@ TEST GETINVITATIONKEY
 def testGetInvitationKeyWorking():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     send("getInvitationKey")
     msg = receive()
     if msg[0] != "martin":
@@ -350,7 +348,7 @@ def testGetInvitationKeyWorking():
 def testGetInvitationKeyErrorFormat():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     send("getInvitationKey coucou")
     msg = receive()
     if msg[0] != "ERROR 3":
@@ -364,7 +362,7 @@ def testGetInvitationKeyErrorFormat():
 def testGetInvitationKeyErrorPermission():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
-    msgTmp = receive()
+    receive()
     deconnection()
     connection()
     send("getInvitationKey")
@@ -377,8 +375,89 @@ def testGetInvitationKeyErrorPermission():
     deconnection()
     return True
 
+"""
+TEST GETINVITATIONKEY
+"""
 
-time.sleep(3)
+def testGetAllAliasWorking():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    receive()
+    deconnection()
+    connection()
+    send("signIn alias_test2 mdp_test2 1123456789 martin") #INVITATIONKEY A CHANGER
+    receive()
+    deconnection()
+    connection()
+    send("signIn alias_test3 mdp_test3 2123456789 martin") #INVITATIONKEY A CHANGER
+    receive()
+    deconnection()
+    connection()
+    send("getAllAlias YpOi0TLHHgJFzgKYCBCrSNHPPRTSEjyt9OHp23WouuVa8tS1emL93WgJXiKLp6n00rkEAriyYQ9JGJfU23GrH43EOUci6k5uNTk5")
+    msg = receive()
+    if "alias_test" not in msg or "alias_test2" not in msg or "alias_test3" not in msg:
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
+def testGetAllAliasErrorFormat():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    receive()
+    deconnection()
+    connection()
+    send("getAllAlias YpOi0TLHHgJFzgKYCBCrSNHPPRTSEjyt9OHp23WouuVa8tS1emL93WgJXiKLp6n00rkEAriyYQ9JGJfU23GrH43EOUci6k5uNTk5 coucou")
+    msg = receive()
+    if msg[0] != "ERROR 3":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
+def testGetAllAliasWrongPassword():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
+    receive()
+    deconnection()
+    connection()
+    send("getAllAlias coucou")
+    msg = receive()
+    if msg[0] != "ERROR 4":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
+def testGetAllAliasEmptyTree():
+    connection()
+    send("getAllAlias YpOi0TLHHgJFzgKYCBCrSNHPPRTSEjyt9OHp23WouuVa8tS1emL93WgJXiKLp6n00rkEAriyYQ9JGJfU23GrH43EOUci6k5uNTk5")
+    msg = receive()
+    if msg[0] != "ERROR 6":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
+cpt = 0
+total = 21
+
+def printValide(b):
+    global cpt
+    if b:
+        print("VALIDE")
+        cpt = cpt + 1
+    else:
+        print("INVALIDE")
+
 if os.path.exists("page.xml"):
     os.remove("page.xml")
 
@@ -387,27 +466,61 @@ PORT = 50001
 
 mySocket = None
 
+
 print("Début des Tests Unitaires :")
 print("----------Fonction connection----------")
-print("Test de connexion au server : " + str(testServerConnection()))
+print("1 Test de connexion au serveur : ", end='')
+printValide(testServerConnection())
 print("----------Fonction signIn----------")
-print("Test de signIn : " + str(testSignInWorking()))
-print("Test de l'erreur de format : " + str(testSignInErrorFormat()))
-print("Test de l'erreur already log : " + str(testSignInErrorAlreadyLog()))
-print("Test de l'erreur user already exists : " + str(testSignInErrorAlreadyExists()))
+print("2 Test de signIn : ", end='')
+printValide(testSignInWorking())
+print("3 Test de l'erreur de format : ", end='')
+printValide(testSignInErrorFormat())
+print("4 Test de l'erreur already log : ", end='')
+printValide(testSignInErrorAlreadyLog())
+print("5 Test de l'erreur user already exists : ", end='')
+printValide(testSignInErrorAlreadyExists())
 print("----------Fonction logIn----------")
-print("Test de logIn : " + str(testLogInWorking()))
-print("Test de l'erreur de format : " + str(testLogInErrorFormat()))
-print("Test de l'erreur wrong log : " + str(testLogInErrorWrongLog()))
+print("6 Test de logIn : ", end='')
+printValide(testLogInWorking())
+print("7 Test de l'erreur de format : ", end='')
+printValide(testLogInErrorFormat())
+print("8 Test de l'erreur wrong log : ", end='')
+printValide(testLogInErrorWrongLog())
 print("----------Fonction getPhoneNum----------")
-print("Test getPhoneNum : " + str(testGetPhoneNumWorking()))
-print("Test de l'erreur de format : " + str (testGetPhoneNumErrorFormat()))
-print("Test de l'erreur de permission : " + str(testGetPhoneNumErrorPermission()))
+print("9 Test getPhoneNum : ", end='')
+printValide(testGetPhoneNumWorking())
+print("10 Test de l'erreur de format : ", end='')
+printValide(testGetPhoneNumErrorFormat())
+print("11 Test de l'erreur de permission : ", end='')
+printValide(testGetPhoneNumErrorPermission())
 print("----------Fonction getPhoneNumList----------")
-print("Test de getPhoneNumList : " + str(testGetPhoneNumListWorking()))
-print("Test de l'erreur de format : " + str(testGetPhoneNumListErrorFormat()))
-print("Test de l'erreur de permission : " + str(testGetPhoneNumListErrorPermission()))
+print("12 Test de getPhoneNumList : ", end='')
+printValide(testGetPhoneNumListWorking())
+print("13 Test de l'erreur de format : ", end='')
+printValide(testGetPhoneNumListErrorFormat())
+print("14 Test de l'erreur de permission : ", end='')
+printValide(testGetPhoneNumListErrorPermission())
 print("----------Fonction getInvitationKey----------")
-print("Test de getInvitationKey : " + str(testGetInvitationKeyWorking()))
-print("Test de l'erreur de format : " + str(testGetInvitationKeyErrorFormat()))
-print("Test de l'erreur de permission : " + str(testGetInvitationKeyErrorPermission()))
+print("15 Test de getInvitationKey : ", end='')
+printValide(testGetInvitationKeyWorking())
+print("16 Test de l'erreur de format : ", end='')
+printValide(testGetInvitationKeyErrorFormat())
+print("17 Test de l'erreur de permission : ", end='')
+printValide(testGetInvitationKeyErrorPermission())
+print("----------Fonction getAllAlias----------")
+print("18 Test de getAllAlias : ", end='')
+printValide(testGetAllAliasWorking())
+print("19 Test de l'erreur de format : ", end='')
+printValide(testGetAllAliasErrorFormat())
+print("20 Test de l'erreur wrong password : ", end='')
+printValide(testGetAllAliasWrongPassword())
+print("21 Test de l'erreur empty tree : ", end='')
+printValide(testGetAllAliasEmptyTree())
+if cpt != total:
+    if total - cpt == 1:
+        print("1 test est invalide !")
+    else:
+        print(str(total - cpt) + " tests sont invalides !")
+else:
+    print("Tous les tests sont valides !")
