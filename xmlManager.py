@@ -69,6 +69,8 @@ def addUser(aliasValue, passValue, numberValue, keyValue):
         return "Error : Key already exists"
     if formatNumber(numberValue) != True:
         return "Error : Number format incorrect"
+    if len(passValue) == 0:
+        return "Error : Empty password"
     user = ET.Element('user')
     user.set("alias", aliasValue)
     user.set("banned", "False")
