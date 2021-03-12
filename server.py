@@ -148,7 +148,7 @@ class ThreadClient(threading.Thread):
             list = xmlM.randomUsers(cmd[1], self.alias)
             if len(list) <1:
                 return False
-            if len(list) = 1:
+            if len(list) == 1:
                 strList = ""
                 strList += list[0][0]
             else:
