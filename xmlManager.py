@@ -80,7 +80,7 @@ def addUser(aliasValue, passValue, numberValue, keyValue):
     root.append(user)
     treeWrite()
     return True
-    
+
 
 
 # return un erreur si pas trouvé, nullptr, verif le nom en entrée
@@ -218,4 +218,3 @@ def main():
 if __name__ == "__main__":
     init()
     main()
-

@@ -117,15 +117,47 @@ def testSignInErrorAlreadyLog():
     deconnection()
     return True
 
-def testSignInErrorAlreadyExists():
+def testSignInErrorAliasAlreadyExists():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin")
     receive()
     deconnection()
     connection()
-    send("signIn alias_test mdp_test 0123456789 martin")
+    send("signIn alias_test mdp_test2 1123456789 martin")
     msg = receive()
-    if msg[0] != "ERROR 5":
+    if msg[0] != "ERROR 5" and msg[1] == "Alias already exists":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
+def testSignInErrorNumberAlreadyExists():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin")
+    receive()
+    deconnection()
+    connection()
+    send("signIn alias_test2 mdp_test2 0123456789 martin")
+    msg = receive()
+    if msg[0] != "ERROR 5" and msg[1] == "Number already exists":
+        send("clearDB")
+        deconnection()
+        return False
+    send("clearDB")
+    deconnection()
+    return True
+
+def testSignInErrorNumberFormat():
+    connection()
+    send("signIn alias_test mdp_test 0123456789 martin")
+    receive()
+    deconnection()
+    connection()
+    send("signIn alias_test2 mdp_test2 42 martin")
+    msg = receive()
+    if msg[0] != "ERROR 3":
         send("clearDB")
         deconnection()
         return False
@@ -448,7 +480,11 @@ def testGetAllAliasEmptyTree():
     return True
 
 cpt = 0
-total = 21
+
+"""
+TOTAL = NOMBRE DE TESTS
+"""
+total = 23
 
 def printValide(b):
     global cpt
@@ -478,44 +514,48 @@ print("3 Test de l'erreur de format : ", end='')
 printValide(testSignInErrorFormat())
 print("4 Test de l'erreur already log : ", end='')
 printValide(testSignInErrorAlreadyLog())
-print("5 Test de l'erreur user already exists : ", end='')
-printValide(testSignInErrorAlreadyExists())
+print("5 Test de l'erreur alias already exists : ", end='')
+printValide(testSignInErrorAliasAlreadyExists())
+print("6 Test de l'erreur number already exists : ", end='')
+printValide(testSignInErrorNumberAlreadyExists())
+print("7 Test de l'erreur number format : ", end='')
+printValide(testSignInErrorNumberFormat())
 print("----------Fonction logIn----------")
-print("6 Test de logIn : ", end='')
+print("8 Test de logIn : ", end='')
 printValide(testLogInWorking())
-print("7 Test de l'erreur de format : ", end='')
+print("9 Test de l'erreur de format : ", end='')
 printValide(testLogInErrorFormat())
-print("8 Test de l'erreur wrong log : ", end='')
+print("10 Test de l'erreur wrong log : ", end='')
 printValide(testLogInErrorWrongLog())
 print("----------Fonction getPhoneNum----------")
-print("9 Test getPhoneNum : ", end='')
+print("11 Test getPhoneNum : ", end='')
 printValide(testGetPhoneNumWorking())
-print("10 Test de l'erreur de format : ", end='')
+print("12 Test de l'erreur de format : ", end='')
 printValide(testGetPhoneNumErrorFormat())
-print("11 Test de l'erreur de permission : ", end='')
+print("13 Test de l'erreur de permission : ", end='')
 printValide(testGetPhoneNumErrorPermission())
 print("----------Fonction getPhoneNumList----------")
-print("12 Test de getPhoneNumList : ", end='')
+print("14 Test de getPhoneNumList : ", end='')
 printValide(testGetPhoneNumListWorking())
-print("13 Test de l'erreur de format : ", end='')
+print("15 Test de l'erreur de format : ", end='')
 printValide(testGetPhoneNumListErrorFormat())
-print("14 Test de l'erreur de permission : ", end='')
+print("16 Test de l'erreur de permission : ", end='')
 printValide(testGetPhoneNumListErrorPermission())
 print("----------Fonction getInvitationKey----------")
-print("15 Test de getInvitationKey : ", end='')
+print("17 Test de getInvitationKey : ", end='')
 printValide(testGetInvitationKeyWorking())
-print("16 Test de l'erreur de format : ", end='')
+print("18 Test de l'erreur de format : ", end='')
 printValide(testGetInvitationKeyErrorFormat())
-print("17 Test de l'erreur de permission : ", end='')
+print("19 Test de l'erreur de permission : ", end='')
 printValide(testGetInvitationKeyErrorPermission())
 print("----------Fonction getAllAlias----------")
-print("18 Test de getAllAlias : ", end='')
+print("20 Test de getAllAlias : ", end='')
 printValide(testGetAllAliasWorking())
-print("19 Test de l'erreur de format : ", end='')
+print("21 Test de l'erreur de format : ", end='')
 printValide(testGetAllAliasErrorFormat())
-print("20 Test de l'erreur wrong password : ", end='')
+print("22 Test de l'erreur wrong password : ", end='')
 printValide(testGetAllAliasWrongPassword())
-print("21 Test de l'erreur empty tree : ", end='')
+print("23 Test de l'erreur empty tree : ", end='')
 printValide(testGetAllAliasEmptyTree())
 if cpt != total:
     if total - cpt == 1:

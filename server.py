@@ -1,7 +1,11 @@
 import sys, threading, os, datetime, time, socket
 import xmlManager as xmlM
 from pairUtils import *
+import rsaUtils as ru
 import jpysocket
+
+crypted = False
+
 
 
 HOST = '192.168.1.44'
@@ -14,6 +18,14 @@ if len(sys.argv)>1:
     if sys.argv[1] == "localhost":
         HOST = 'localhost'
         PORT = 50000
+    if sys.argv[1] == "crypted":
+        HOST = '192.168.1.44'
+        PORT = 50002
+        crypted = True
+    if sys.argv[1] == "localhost2":
+        HOST = 'localhost'
+        PORT = 50002
+        crypted = True
 print("HOST: " + HOST + " Port: " + str(PORT))
 
 
@@ -78,16 +90,29 @@ class ThreadClient(threading.Thread):
             os.remove(cmd[1]+"_crt.pem")
             os.remove(cmd[1]+"_key.pem")
             res = xmlM.addUser(cmd[1], cmd[2], cmd[3], cert_str)
-            if res == "Error : User already exists":
-                print("ERROR 5_|_User already exists")
-                self.sendMessage("ERROR 5_|_User already exists")
+            if res == "Error : Alias already exists":
+                print("ERROR 5_|_Alias already exists")
+                self.sendMessage("ERROR 5_|_Alias already exists")
                 return
-            keyCert = cert_str + "_|_" + key_str + "_|_" + ca_cert_str
-            self.sendMessage(keyCert)
+            elif res == "Error : Number already exists":
+                print("ERROR 5_|_Number already exists")
+                self.sendMessage("ERROR 5_|_Number already exists")
+                return
+            elif res == "Error : Key already exists":
+                print("ERROR 5_|_Key already exists")
+                self.sendMessage("ERROR 5_|_Key already exists")
+                return
+            elif res == "Error : Number format incorrect":
+                print("ERROR 3_|_Number format incorrect")
+                self.sendMessage("ERROR 3_|_Number format incorrect")
+                return
+            else:
+                keyCert = cert_str + "_|_" + key_str + "_|_" + ca_cert_str
+                self.sendMessage(keyCert)
 
-            #si pas d'erreur
-            self.logged = True
-            self.alias = cmd[1]
+                #si pas d'erreur
+                self.logged = True
+                self.alias = cmd[1]
 
 
         elif cmd[0] == "logIn":
@@ -123,16 +148,20 @@ class ThreadClient(threading.Thread):
             list = xmlM.randomUsers(cmd[1], self.alias)
             if len(list) <1:
                 return False
-            strList = ""
-            strList += list[0][0]
-            strList += "_|_"
-            strList += list[0][1]
-            if len(list) >=2:
-                for x in range(1, len(list)):
-                    strList += "_|_"
-                    strList += list[x][0]
-                    strList += "_|_"
-                    strList += list[x][1]
+            if len(list) == 1:
+                strList = ""
+                strList += list[0][0]
+            else:
+                strList = ""
+                strList += list[0][0]
+                strList += "_|_"
+                strList += list[0][1]
+                if len(list) >=2:
+                    for x in range(1, len(list)):
+                        strList += "_|_"
+                        strList += list[x][0]
+                        strList += "_|_"
+                        strList += list[x][1]
             self.sendMessage(strList)
 
         elif  cmd[0] == "clearDB":
@@ -172,18 +201,20 @@ class ThreadClient(threading.Thread):
             self.sendMessage("Invalid callBack")
 
     def receive(self):
+        global crypted
         try:
             msg=connection.recv(1024)
             print(msg)
             try:
-                msg=jpysocket.jpydecode(msg)
+                msg=msg.decode("utf-8", errors="ignore")
             except:
                 print("error while decode received message: " + str(msg))
                 return False
         except:
             print("error while receive")
             return "error while receive"
-
+        if crypted:
+            msg = ru.decrypt(msg)
         msg = msg.split("_|_")
         if len(msg)>1:
             del msg[0]
@@ -193,12 +224,19 @@ class ThreadClient(threading.Thread):
             print("Client disconnected unexpectedly:", self.getName())
             sys.exit()
         while msg[-1] != "END_COMMUNICATION":
-            tmp = connection.recv(1024)
             try:
-                msg += jpysocket.jpydecode(tmp).split("_|_")
+                tmp = connection.recv(1024)
+                try:
+                    tmp = tmp.decode("utf-8", errors="ignore")
+                    if crypted:
+                        tmp = ru.decrypt(tmp)
+                    msg += tmp.split("_|_")
+                except:
+                    print("error while decode received message: " + str(msg) + " + " + str(tmp))
+                    return False
             except:
-                print("error while decode received message: " + str(msg) + " + " + str(tmp))
-                return False
+                print("error while receive 2")
+                return "error while receive 2"
         for x in msg:
             if x != "BEGIN_COMMUNICATION":
                 msg.remove(x)
@@ -212,11 +250,14 @@ class ThreadClient(threading.Thread):
 
 
     def sendMessage(self, msg):
+        global crypted
         to_send = "_|_BEGIN_COMMUNICATION_|_"
         to_send += msg
         to_send += "_|_END_COMMUNICATION"
         to_send=jpysocket.jpyencode(to_send)
         #print(msg)
+        if crypted:
+            to_send = ru.encrypt(to_send, self.alias)
         try:
             connection.send(to_send)
         except:
@@ -232,7 +273,7 @@ class ThreadClient(threading.Thread):
             if msgClient == "error while receive":
                 break
             if msgClient == False:
-                print("receive error")
+                print("decode/split error")
                 self.sendMessage("ERROR")
             else:
                 if msgClient[-1].upper() == "FIN" or msgClient == None:
@@ -276,16 +317,12 @@ if(s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)):
 print("Serveur prêt, en attente de requêtes ...")
 
 
-
-
-
-
 conn_client = {}
 while 1:
     connection,address=s.accept()
     th = ThreadClient(connection)
     th.start()
-    print(str(datetime.datetime.now()) + "Connected To: " + str(address[0]) + " on port: " + str(address[1]) + " on thread: " + str(th.getName()))
+    print("\n" + str(datetime.datetime.now()) + " Connected To: " + str(address[0]) + " on port: " + str(address[1]) + " on thread: " + str(th.getName()) + "\n")
     it = th.getName()
     conn_client[it] = connection
     msgsend=jpysocket.jpyencode("_|_BEGIN_COMMUNICATION_|_You are connected._|_END_COMMUNICATION")

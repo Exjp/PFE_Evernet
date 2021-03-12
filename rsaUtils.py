@@ -12,7 +12,7 @@ def encrypt(data, pseudo):
     public = RSA.importKey(pKeyString)
 
     cipher = cipher_algorithm.new(public)
-    cipher_text = cipher.encrypt(data.encode())
+    cipher_text = cipher.encrypt(data)#.encode())
     signed = base64.b64encode(cipher_text)
 
     return sign
@@ -27,6 +27,6 @@ def decrypt(cipherText):
     cipher = base64.b64decode(cipherText)
     pr = cipher_algorithm.new(privat)
     x = pr.decrypt(cipher, "error")
-    x = x.decode('utf-8')
+    #x = x.decode('utf-8')
 
     return x
