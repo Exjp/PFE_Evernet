@@ -5,9 +5,11 @@ import socket, sys
 import jpysocket
 
 def receive():
+    global crypted
     msg = mySocket.recv(1024)
     msg = jpysocket.jpydecode(msg)
-
+    if crypted:
+        msg = ru.decrypt_with_file(msg, rien)
     msg = msg.split("_|_")
     if len(msg)>1:
         del msg[0]
@@ -16,6 +18,8 @@ def receive():
     while msg[-1] != "END_COMMUNICATION":
         tmp = mySocket.recv(1024)
         tmp = jpysocket.jpydecode(tmp)
+        if crypted:
+            tmp = ru.decrypt_with_file(tmp, rien)
         msg += tmp.split("_|_")
     for x in msg:
         if x != "BEGIN_COMMUNICATION":
@@ -28,17 +32,22 @@ def receive():
     return msg
 
 def send(msg):
+    global crypted
     msg = msg.replace(" ", "_|_")
     to_send = "_|_BEGIN_COMMUNICATION_|_"
     to_send += msg
     to_send += "_|_END_COMMUNICATION"
     to_send=jpysocket.jpyencode(to_send)
+    if crypted:
+        to_send = ru.encrypt_with_pem(to_send, "ca")
     mySocket.send(to_send)
 
-
+crypted = False
 HOST = '192.168.1.44'
 PORT = 50000
 if len(sys.argv)>1:
+    if sys.argv == "crypted":
+        crypted = True
     HOST = sys.argv[1]
 
 mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
