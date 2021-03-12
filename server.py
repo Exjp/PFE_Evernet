@@ -1,7 +1,11 @@
 import sys, threading, os, datetime, time, socket
 import xmlManager as xmlM
 from pairUtils import *
+import rsaUtils as ru
 import jpysocket
+
+crypted = False
+
 
 
 HOST = '192.168.1.44'
@@ -14,6 +18,14 @@ if len(sys.argv)>1:
     if sys.argv[1] == "localhost":
         HOST = 'localhost'
         PORT = 50000
+    if sys.argv[1] == "crypted":
+        HOST = '192.168.1.44'
+        PORT = 50002
+        crypted = True
+    if sys.argv[1] == "localhost2":
+        HOST = 'localhost'
+        PORT = 50002
+        crypted = True
 print("HOST: " + HOST + " Port: " + str(PORT))
 
 
@@ -136,16 +148,20 @@ class ThreadClient(threading.Thread):
             list = xmlM.randomUsers(cmd[1], self.alias)
             if len(list) <1:
                 return False
-            strList = ""
-            strList += list[0][0]
-            strList += "_|_"
-            strList += list[0][1]
-            if len(list) >=2:
-                for x in range(1, len(list)):
-                    strList += "_|_"
-                    strList += list[x][0]
-                    strList += "_|_"
-                    strList += list[x][1]
+            if len(list) = 1:
+                strList = ""
+                strList += list[0][0]
+            else:
+                strList = ""
+                strList += list[0][0]
+                strList += "_|_"
+                strList += list[0][1]
+                if len(list) >=2:
+                    for x in range(1, len(list)):
+                        strList += "_|_"
+                        strList += list[x][0]
+                        strList += "_|_"
+                        strList += list[x][1]
             self.sendMessage(strList)
 
         elif  cmd[0] == "clearDB":
@@ -185,6 +201,7 @@ class ThreadClient(threading.Thread):
             self.sendMessage("Invalid callBack")
 
     def receive(self):
+        global crypted
         try:
             msg=connection.recv(1024)
             print(msg)
@@ -196,7 +213,8 @@ class ThreadClient(threading.Thread):
         except:
             print("error while receive")
             return "error while receive"
-
+        if crypted:
+            msg = ru.decrypt(msg)
         msg = msg.split("_|_")
         if len(msg)>1:
             del msg[0]
@@ -209,7 +227,10 @@ class ThreadClient(threading.Thread):
             try:
                 tmp = connection.recv(1024)
                 try:
-                    msg += tmp.decode("utf-8", errors="ignore").split("_|_")
+                    tmp = tmp.decode("utf-8", errors="ignore")
+                    if crypted:
+                        tmp = ru.decrypt(tmp)
+                    msg += tmp.split("_|_")
                 except:
                     print("error while decode received message: " + str(msg) + " + " + str(tmp))
                     return False
@@ -229,11 +250,14 @@ class ThreadClient(threading.Thread):
 
 
     def sendMessage(self, msg):
+        global crypted
         to_send = "_|_BEGIN_COMMUNICATION_|_"
         to_send += msg
         to_send += "_|_END_COMMUNICATION"
         to_send=jpysocket.jpyencode(to_send)
         #print(msg)
+        if crypted:
+            to_send = ru.encrypt(to_send, self.alias)
         try:
             connection.send(to_send)
         except:
