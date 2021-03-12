@@ -174,7 +174,7 @@ def getAliases():
 def randomUsers(num,sender):
     listAlias = getAliases()
     if listAlias == "Error : Tree empty":
-        return "Error : randoTree empty"
+        return "Error : Tree empty"
     
     num = int(num)
     sizeListAlias = len(listAlias) - 1
