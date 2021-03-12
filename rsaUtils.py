@@ -13,7 +13,7 @@ def encrypt_with_pem(data, pseudo):
     public = RSA.importKey(pKeyString)
 
     cipher = cipher_algorithm.new(public)
-    cipher_text = cipher.encrypt((data).encode())
+    cipher_text = cipher.encrypt(data)#.encode())
     signed = base64.b64encode(cipher_text)
 
     return signed
@@ -26,7 +26,7 @@ def encrypt(data, pseudo):
     public = RSA.importKey(pKeyString)
 
     cipher = cipher_algorithm.new(public)
-    cipher_text = cipher.encrypt((data).encode())
+    cipher_text = cipher.encrypt(data)#).encode())
     signed = base64.b64encode(cipher_text)
 
     return signed
@@ -41,7 +41,7 @@ def decrypt(cipherText):
     cipher = base64.b64decode(cipherText)
     pr = cipher_algorithm.new(privat)
     x = pr.decrypt(cipher, "error")
-    x = x.decode('utf-8')
+    #x = x.decode('utf-8')
 
     return x
 
@@ -55,7 +55,7 @@ def decrypt_with_file(cipherText, pseudo):
     cipher = base64.b64decode(cipherText)
     pr = cipher_algorithm.new(privat)
     x = pr.decrypt(cipher, "error")
-    print(x)
-    x = x.decode('utf-8')
+    #print(x)
+    #x = x.decode('utf-8')
 
     return x
