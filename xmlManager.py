@@ -62,7 +62,7 @@ def keyUnique(keyValue):
 # return string sur les fonction selon l'erreur
 def addUser(aliasValue, passValue, numberValue, keyValue):
     if aliasUnique(aliasValue) != True:
-        return "Error : User already exists"
+        return "Error : Alias already exists"
     if numberUnique(numberValue) != True:
         return "Error : Number already exists"
     if keyUnique(keyValue) != True:
@@ -77,7 +77,6 @@ def addUser(aliasValue, passValue, numberValue, keyValue):
     user.set("password", hashed_password.decode('utf8'))
     user.set("number", numberValue)
     user.set("key", keyValue)
-
     root.append(user)
     treeWrite()
     return True
@@ -170,11 +169,17 @@ def getAliases():
         return "Error : Tree empty"
     return listAliases
 
-
 def randomUsers(num,sender):
     listAlias = getAliases()
-    if listAlias == "Error getAliases() : Tree empty":
+    if listAlias == "Error : Tree empty":
         return "Error : randoTree empty"
+    
+    num = int(num)
+    sizeListAlias = len(listAlias) - 1
+    
+    if num > sizeListAlias & num <= 0:
+        return "Error : Not enough numbers in database..."
+    
     try:
         listAlias.pop(listAlias.index(sender))
     except IndexError:
@@ -182,20 +187,20 @@ def randomUsers(num,sender):
     except ValueError:
         return "Error : Sender is not in the tree"
 
-    num = int(num)
-    sizeListAlias = len(listAlias)
     tmpList = [[0 for x in range(2)] for y in range(num)]
-
-
-    if num > sizeListAlias & num <= 0:
-        return "Error : Not enough numbers in database..."
 
     cnt=0
     aleaIndList = random.sample(range(sizeListAlias), num)
 
     for i in aleaIndList:
-        tmpList[cnt][0] = getNumberFromAlias(listAlias[i])
-        tmpList[cnt][1] = getKeyFromAlias(listAlias[i])
+        try:
+            tmpList[cnt][0] = getNumberFromAlias(listAlias[i])
+        except "Error : alias not found":
+            return "Error : alias not found"
+        try:
+            tmpList[cnt][1] = getKeyFromAlias(listAlias[i])
+        except "Error : alias not found":
+            return "Error : alias not found"
         cnt = cnt + 1
     return tmpList
 
