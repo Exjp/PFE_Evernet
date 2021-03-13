@@ -146,6 +146,19 @@ class ThreadClient(threading.Thread):
                 self.sendMessage("ERROR 3_|_Wrong input format: getPhoneNumList_|_*n_numbers*")
                 return
             list = xmlM.randomUsers(cmd[1], self.alias)
+            if list == "Error : Tree empty":
+                print("ERROR 7_|_Database error: Data base empty")
+                self.sendMessage("ERROR 7_|_Database error: Data base empty")
+                return
+            if list == "Error : Not enough numbers in database...":
+                print("ERROR 7_|_Database error: Not enough numbers in database")
+                self.sendMessage("ERROR 7_|_Database error: Not enough numbers in database")
+                return
+            if list == "Error : Index Error" or list == "Error : Sender is not in the tree":
+                print("ERROR 7_|_Database error: error on database side")
+                self.sendMessage("ERROR 7_|_Database error: error on database side")
+                return
+
             if len(list) <1:
                 return False
             if len(list) == 1:
