@@ -90,6 +90,7 @@ def removeUserFromName(name):
     for elem in root:
         if elem.attrib['alias'] == name:
             root.remove(elem)
+            treeWrite()
             return True
     return "Error : User not found"
 
@@ -98,6 +99,7 @@ def removeUserFromNumber(number):
     for elem in root:
         if elem.attrib['number'] == number:
             root.remove(elem)
+            treeWrite()
             return True
     return "Error : User not found"
 
@@ -115,6 +117,7 @@ def banUser(alias):
     for elem in root:
         if elem.attrib['alias'] == alias:
             elem.attrib['banned'] = "True"
+            treeWrite()
             return True
     return "Error : alias not found"
 
@@ -123,6 +126,7 @@ def unBanUser(alias):
     for elem in root:
         if elem.attrib['alias'] == alias:
             elem.attrib['banned'] = "False"
+            treeWrite()
             return True
     return "Error : alias not found"
 
