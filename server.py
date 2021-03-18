@@ -7,7 +7,6 @@ import jpysocket
 crypted = False
 
 
-
 HOST = '192.168.1.44'
 PORT = 50000
 if len(sys.argv)>1:
@@ -87,8 +86,13 @@ class ThreadClient(threading.Thread):
             client_pair(cmd[1])
             cert_str = open(cmd[1]+"_crt.pem", 'rt').read()
             key_str = open(cmd[1]+"_key.pem", 'rt').read()
+            """
+            if len(sys.argv)>1:
+                if sys.argv[1] != "test":
+            """
             os.remove(cmd[1]+"_crt.pem")
             os.remove(cmd[1]+"_key.pem")
+
             res = xmlM.addUser(cmd[1], cmd[2], cmd[3], cert_str)
             if res == "Error : Alias already exists":
                 print("ERROR 5_|_Alias already exists")
@@ -109,7 +113,7 @@ class ThreadClient(threading.Thread):
             else:
                 keyCert = cert_str + "_|_" + key_str + "_|_" + ca_cert_str
                 self.sendMessage(keyCert)
-
+#gros changement de ouf ATTENTION
                 #si pas d'erreur
                 self.logged = True
                 self.alias = cmd[1]
@@ -180,7 +184,6 @@ class ThreadClient(threading.Thread):
         elif  cmd[0] == "clearDB":
             if len(cmd) != 1:
                 print("ERROR 3_|_Wrong input format: clearDB")
-                self.sendMessage("ERROR 3_|_Wrong input format: clearDB")
                 return
             if sys.argv[1] == "test":
                 xmlM.reset()
@@ -218,16 +221,15 @@ class ThreadClient(threading.Thread):
         try:
             msg=connection.recv(1024)
             print(msg)
-            try:
-                msg=msg.decode("utf-8", errors="ignore")
-            except:
-                print("error while decode received message: " + str(msg))
-                return False
         except:
             print("error while receive")
             return "error while receive"
-        if crypted:
-            msg = ru.decrypt(msg)
+
+        try:
+            msg=msg.decode("utf-8", errors="ignore")
+        except:
+            print("error while decode received message: " + str(msg))
+            return False
         msg = msg.split("_|_")
         if len(msg)>1:
             del msg[0]
@@ -236,13 +238,17 @@ class ThreadClient(threading.Thread):
             del conn_client[self.getName()]
             print("Client disconnected unexpectedly:", self.getName())
             sys.exit()
+        if msg[0] != "BEGIN_COMMUNICATION":
+            self.connection.close()
+            del conn_client[self.getName()]
+            print("Forced disconnection caused by no BEGIN_COMMUNICATION found : ", self.getName())
+            sys.exit()
         while msg[-1] != "END_COMMUNICATION":
             try:
                 tmp = connection.recv(1024)
+
                 try:
                     tmp = tmp.decode("utf-8", errors="ignore")
-                    if crypted:
-                        tmp = ru.decrypt(tmp)
                     msg += tmp.split("_|_")
                 except:
                     print("error while decode received message: " + str(msg) + " + " + str(tmp))
@@ -250,27 +256,34 @@ class ThreadClient(threading.Thread):
             except:
                 print("error while receive 2")
                 return "error while receive 2"
-        for x in msg:
-            if x != "BEGIN_COMMUNICATION":
-                msg.remove(x)
-            else:
-                msg.remove('BEGIN_COMMUNICATION')
-                break
-
+        #del msg[0]
         del msg[-1]
-        print(msg)
+        if(crypted and self.logged):
+            to_decrypt = ""
+            for i in range(1,len(msg)):
+                to_decrypt += msg[i]
+            tmp = ru.decrypt(to_decrypt)
+            to_return = msg[0].split("_|_")
+            to_return += tmp.decode("utf-8").split("_|_")
+            del to_return[0]
+            return to_return
+        del msg[0]
         return msg
 
 
     def sendMessage(self, msg):
         global crypted
         to_send = "_|_BEGIN_COMMUNICATION_|_"
-        to_send += msg
+        if crypted and self.logged:
+            msg = msg.encode()
+            print("tosendmessage :" + str(msg))
+            tmp = ru.encrypt(msg, self.alias)
+            tmp = tmp.decode("utf-8")
+            to_send += tmp
+        else:
+            to_send += msg
         to_send += "_|_END_COMMUNICATION"
         to_send=jpysocket.jpyencode(to_send)
-        #print(msg)
-        if crypted:
-            to_send = ru.encrypt(to_send, self.alias)
         try:
             connection.send(to_send)
         except:
@@ -281,7 +294,7 @@ class ThreadClient(threading.Thread):
         while 1:
             msgClient = self.receive()
             message = str(datetime.datetime.now())
-            message += " : %s> %s" % (nom, msgClient)
+            message += " : %s> %s:" % (nom, msgClient)
             print(message)
             if msgClient == "error while receive":
                 break
@@ -289,7 +302,7 @@ class ThreadClient(threading.Thread):
                 print("decode/split error")
                 self.sendMessage("ERROR")
             else:
-                if msgClient[-1].upper() == "FIN" or msgClient == None:
+                if str(msgClient[-1]).upper() == "FIN" or msgClient == None:
                     self.sendMessage("FIN")
                     break
                 self.callBack(msgClient)
