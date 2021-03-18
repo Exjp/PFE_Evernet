@@ -82,6 +82,10 @@ class ThreadClient(threading.Thread):
                 print("ERROR 3_|_Wrong input format: signIn_|_*alias*_|_*password*_|_*phoneNum*_|_*invitationKey*")
                 self.sendMessage("ERROR 3_|_Wrong input format: signIn_|_*alias*_|_*password*_|_*phoneNum*_|_*invitationKey*")
                 return
+            if cmd[4] != "martin":
+                print("ERROR 8_|_Wrong invitation key")
+                self.sendMessage("ERROR 8_|_Wrong invitation key")
+                return
             #verif cmd[3]la clé d'invition
             client_pair(cmd[1])
             cert_str = open(cmd[1]+"_crt.pem", 'rt').read()
