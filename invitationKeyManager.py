@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import os
 import string
 import random
+import re
 from datetime import datetime, timedelta
 
 def init():
@@ -34,14 +35,30 @@ def getRandomString(length):
     rndStr = ''.join(random.choice(base) for i in range(length))
     return rndStr
 
+def formatDate(date):
+    if date == "0":
+        return True
+    try:
+        datetime.strptime(date,'%d-%m-%Y')
+    except ValueError:
+        return False
+    return True
+
 #format de la date : 17-03-2021
 #verifier les entrees (date (type date, j/m/a ou 0) et uses (type int)
 #limiter les durees max des cles ?
+#gérer le type des paramètre
 def addKey(aliasValue, dateValue, usesValue):
     if aliasUnique(aliasValue) != True:
         return "Error : A key already exists for this alias"
-    if int(usesValue) < 0:
-        return "Error : Negative uses value"
+    if formatDate(dateValue) != True:
+        return "Error : Date format incorrect"
+    try:
+        # print(usesValue)
+        if int(usesValue) < 0:
+            return "Error : Negative uses value"
+    except ValueError:
+        return "Error : number of uses is not an integer"
     invitKey = ET.Element('invitationKey')
 
     key = getRandomString(12)
@@ -52,7 +69,7 @@ def addKey(aliasValue, dateValue, usesValue):
     invitKey.set("uses", usesValue)
     root.append(invitKey)
     treeWrite()
-    return True
+    return key
 
 #pas de treewrite ici, on le fait à la fin du signup et du cleanup
 def removeKey(key):
@@ -80,7 +97,6 @@ def cleanup():
 def signup(key):
     for elem in root:
         if elem.attrib['key'] == key:
-            tmp = True
             if int(elem.attrib['uses']) == 1:
                 x = removeKey(key)
                 treeWrite()
@@ -89,12 +105,17 @@ def signup(key):
                 x = int(elem.attrib['uses']) - 1
                 elem.attrib['uses'] = str(x)
                 treeWrite()
-            return tmp
+            return True
     return "Error : Key not found"
 
 def main():
-    print (cleanup())
-
+    emptyXml()
+    x = addKey("Thierry","08-08-4300","0")
+    print(x)
+    cleanup()
+    y = signup(x)
+    print(y)
+    print(removeKey(x))
 if __name__ == "__main__":
     init()
     main()

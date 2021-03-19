@@ -6,6 +6,8 @@ import bcrypt
 import re
 
 def init():
+    """initialize the database
+    """
     if not os.path.isfile('page.xml'):
         emptyXml()
     global tree
@@ -14,6 +16,8 @@ def init():
     root = tree.getroot()
 
 def reset():
+    """erase and recreate the tree in the database 
+    """
     emptyXml()
     global tree
     tree = ET.parse('page.xml')
@@ -21,10 +25,14 @@ def reset():
     root = tree.getroot()
 
 def treeWrite():
+    """write the current tree in the database
+    """
     tree.write('page.xml', encoding="utf-8", xml_declaration=True)
 
 
 def emptyXml():
+    """empty the tree in the database
+    """
     rootEmpty = ET.Element("users")
     treeEmpty = ET.ElementTree(rootEmpty)
     treeEmpty.write("page.xml",
@@ -32,6 +40,14 @@ def emptyXml():
            method="xml")
 
 def aliasUnique(aliasValue):
+    """test if the alias is not already in the database
+
+    Args:
+        aliasValue (String): [description]
+
+    Returns:
+        [type]: [description]
+    """
     unique = True
     for elem in root:
         if elem.attrib['alias'] == aliasValue:
@@ -39,6 +55,14 @@ def aliasUnique(aliasValue):
     return unique
 
 def numberUnique(numberValue):
+    """test if the phone number is not already in the database
+
+    Args:
+        numberValue (String): the phone number
+
+    Returns:
+        Boolean
+    """
     unique = True
     for elem in root:
         if elem.attrib['number'] == numberValue:
@@ -46,11 +70,27 @@ def numberUnique(numberValue):
     return unique
 
 def formatNumber(number):
+    """test if the phone number have a good format
+
+    Args:
+        number (String): the phone number
+
+    Returns:
+        Boolean
+    """
     if re.match( r'\+?(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)?\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*(\d{1,2})$', number) == None:
         return False
     return True
 
 def keyUnique(keyValue):
+    """test if the certificate is not already in the database
+
+    Args:
+        keyValue (String): the certificate
+
+    Returns:
+        Boolean
+    """
     unique = True
     for elem in root:
         if elem.attrib['key'] == keyValue:
@@ -58,9 +98,18 @@ def keyUnique(keyValue):
     return unique
 
 
-# vérifier que les champs sont corrects
-# return string sur les fonction selon l'erreur
 def addUser(aliasValue, passValue, numberValue, keyValue):
+    """function to add an user in the database
+
+    Args:
+        aliasValue (String)
+        passValue (String): the password
+        numberValue (String): the phone number
+        keyValue (String): the certificate
+
+    Returns:
+        Boolean
+    """
     if aliasUnique(aliasValue) != True:
         return "Error : Alias already exists"
     if numberUnique(numberValue) != True:
@@ -85,8 +134,15 @@ def addUser(aliasValue, passValue, numberValue, keyValue):
 
 
 
-# return un erreur si pas trouvé, nullptr, verif le nom en entrée
 def removeUserFromName(name):
+    """remove an user with his alias
+
+    Args:
+        name (String): the alias
+
+    Returns:
+        Boolean
+    """
     for elem in root:
         if elem.attrib['alias'] == name:
             root.remove(elem)
@@ -94,8 +150,15 @@ def removeUserFromName(name):
             return True
     return "Error : User not found"
 
-# return un erreur si pas trouvé, nullptr, verif le nom en entrée
 def removeUserFromNumber(number):
+    """remove an user with his phone number
+
+    Args:
+        number (String): the phone number
+
+    Returns:
+        Boolean
+    """
     for elem in root:
         if elem.attrib['number'] == number:
             root.remove(elem)
@@ -103,8 +166,16 @@ def removeUserFromNumber(number):
             return True
     return "Error : User not found"
 
-# return une info si utilisateur banni
 def login(alias, password):
+    """test the login parameters if they belong to an user in the database
+
+    Args:
+        alias (String)
+        password (String)
+
+    Returns:
+        Boolean
+    """
     for elem in root:
         if elem.attrib['alias'] == alias:
             if bcrypt.checkpw(password.encode('utf8'), elem.attrib['password'].encode()):
@@ -112,8 +183,15 @@ def login(alias, password):
     return "Error : Wrong alias or password"
 
 
-#return erreur si deja unban avant l'ecriture
 def banUser(alias):
+    """ban the alias of the network
+
+    Args:
+        alias (String)
+
+    Returns:
+        Boolean
+    """
     for elem in root:
         if elem.attrib['alias'] == alias:
             elem.attrib['banned'] = "True"
@@ -121,8 +199,16 @@ def banUser(alias):
             return True
     return "Error : alias not found"
 
-#return erreur si deja unban avant l'ecriture
 def unBanUser(alias):
+    """unban the alias of the network
+
+    Args:
+        alias (String)
+
+    Returns:
+        Boolean
+    """
+
     for elem in root:
         if elem.attrib['alias'] == alias:
             elem.attrib['banned'] = "False"
@@ -130,22 +216,44 @@ def unBanUser(alias):
             return True
     return "Error : alias not found"
 
-# erreur si existe pas ?
 def isBanned(alias):
+    """test if the alias is banned of the network
+
+    Args:
+        alias (String)
+
+    Returns:
+        Boolean
+    """
     for elem in root:
         if elem.attrib['alias'] == alias and elem.attrib['banned'] == "True":
             return True
     return False
 
 def exists(alias):
+    """test if the alias is in the database
+
+    Args:
+        alias (String)
+
+    Returns:
+        Boolean
+    """
     for elem in root:
         if elem.attrib['alias'] == alias:
             return True
     return False
 
 
-# verifier les noms en entrée (nullptr, trop gros, non utf8) / erreur differente si l user est ban
 def getNumberFromAlias(name):
+    """get the phone number from alias 
+
+    Args:
+        name (String): the alias
+
+    Returns:
+        String: the phone number
+    """
     for elem in root:
         if elem.attrib['alias'] == name and elem.attrib['banned'] == "False":
             return elem.attrib['number']
@@ -153,6 +261,14 @@ def getNumberFromAlias(name):
 
 
 def getAliasFromNumber(number):
+    """get the alias from a phone number
+
+    Args:
+        number (String): phone number
+
+    Returns:
+        String: the alias
+    """
     if re.match( r'\+?(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)?\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*\d\W*(\d{1,2})$', number) == None:
         return "Error : Wrong number format"
 
@@ -161,8 +277,15 @@ def getAliasFromNumber(number):
             return elem.attrib['alias']
     return "Error : number not found"
 
-#verifier les noms en entrée (nullptr, trop gros, non utf8)
 def getKeyFromAlias(name):
+    """get the certificate of the alias
+
+    Args:
+        name (String): the alias
+
+    Returns:
+        String: the certificate
+    """
     for elem in root:
         if elem.attrib['alias'] == name and elem.attrib['banned'] == "False":
             return elem.attrib['key']
@@ -170,12 +293,26 @@ def getKeyFromAlias(name):
 
 
 def getAliases():
+    """get all alias of the database
+
+    Returns:
+        list[alias]: list of alias
+    """
     listAliases = [elem.attrib['alias'] for elem in root]
     if listAliases == []:
         return "Error : Tree empty"
     return listAliases
 
 def randomUsers(num,sender):
+    """give a list of a number of receptor, randomly sort
+
+    Args:
+        num (integer): the number of receptor
+        sender (String): the alias of the sender
+
+    Returns:
+        list[receptor][number,key]: a list with receptor data
+    """
     listAlias = getAliases()
     if listAlias == "Error : Tree empty":
         return "Error : Tree empty"
