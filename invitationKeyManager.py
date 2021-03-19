@@ -109,13 +109,7 @@ def signup(key):
     return "Error : Key not found"
 
 def main():
-    emptyXml()
-    x = addKey("Thierry","08-08-4300","0")
-    print(x)
-    cleanup()
-    y = signup(x)
-    print(y)
-    print(removeKey(x))
+    print (cleanup())
 if __name__ == "__main__":
     init()
     main()

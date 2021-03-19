@@ -1,5 +1,4 @@
 from xmlManager import * 
-import filecmp
     
 
         
@@ -97,7 +96,7 @@ def testGetAliases(): ###### getAliases()
 
     return cpt
 
-def testAddUser(): ###### addUser() ######
+def testAddUser(): ###### addUser()
     cpt = 0
     addUser("Thierry","mdp", "+33666666266", "key")
 
@@ -133,7 +132,7 @@ def testAddUser(): ###### addUser() ######
 
     return cpt
 
-def testAliasUnique(): ###### aliasUnique() ######
+def testAliasUnique(): ###### aliasUnique()
     cpt = 0
     if(aliasUnique("Pierre") == False):
         print("error aliasUnique 1")
@@ -147,7 +146,7 @@ def testAliasUnique(): ###### aliasUnique() ######
 
     return cpt
 
-def testnumberUnique(): ###### numberUnique() ######
+def testnumberUnique(): ###### numberUnique()
     cpt = 0
     if(numberUnique("+33266666222") == False):
         print("error numberUnique 1")
@@ -161,7 +160,7 @@ def testnumberUnique(): ###### numberUnique() ######
     
     return cpt
 
-def testKeyUnique() :###### keyUnique() ######
+def testKeyUnique() :###### keyUnique() 
     cpt = 0
     if(keyUnique("key") != False):
         print("error keyUnique 1")
