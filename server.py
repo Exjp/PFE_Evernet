@@ -356,7 +356,10 @@ while 1:
     it = th.getName()
     conn_client[it] = connection
     msgsend=jpysocket.jpyencode("_|_BEGIN_COMMUNICATION_|_You are connected._|_END_COMMUNICATION")
-    connection.send(msgsend)
-
+    try:
+        connection.send(msgsend)
+    except:
+        print("client disconnected before welcome")
+        
 s.close() #Close connection
 print("Connection Closed.")
