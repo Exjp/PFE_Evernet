@@ -30,9 +30,13 @@ print("HOST: " + HOST + " Port: " + str(PORT))
 
 
 class ThreadClient(threading.Thread):
-
-    '''dérivation d'un objet thread pour gérer la connexion avec un client'''
+    """class tha manage client connection
+    """
     def __init__(self, conn):
+        """the initialization of a ThreadClient object
+        Args:
+            conn: the object that contain de pipe open with a client
+        """
         threading.Thread.__init__(self)
         self.connection = conn
         self.logged = False
@@ -40,6 +44,10 @@ class ThreadClient(threading.Thread):
 
 
     def callBack(self, commande):
+        """analyse and respond to a client request
+        Args:
+            commande (list of string): the callback and its agruments
+        """
         cmd = commande
 
 
@@ -90,10 +98,7 @@ class ThreadClient(threading.Thread):
             client_pair(cmd[1])
             cert_str = open(cmd[1]+"_crt.pem", 'rt').read()
             key_str = open(cmd[1]+"_key.pem", 'rt').read()
-            """
-            if len(sys.argv)>1:
-                if sys.argv[1] != "test":
-            """
+
             os.remove(cmd[1]+"_crt.pem")
             os.remove(cmd[1]+"_key.pem")
 
@@ -117,8 +122,7 @@ class ThreadClient(threading.Thread):
             else:
                 keyCert = cert_str + "_|_" + key_str + "_|_" + ca_cert_str
                 self.sendMessage(keyCert)
-#gros changement de ouf ATTENTION
-                #si pas d'erreur
+
                 self.logged = True
                 self.alias = cmd[1]
 
@@ -221,6 +225,10 @@ class ThreadClient(threading.Thread):
             self.sendMessage("Invalid callBack")
 
     def receive(self):
+        """receive communication from client, analyse and format it
+        Returns:
+            list of string : the request and its parameters
+        """
         global crypted
         try:
             msg=connection.recv(1024)
@@ -260,7 +268,6 @@ class ThreadClient(threading.Thread):
             except:
                 print("error while receive 2")
                 return "error while receive 2"
-        #del msg[0]
         del msg[-1]
         if(crypted and self.logged):
             to_decrypt = ""
@@ -276,6 +283,10 @@ class ThreadClient(threading.Thread):
 
 
     def sendMessage(self, msg):
+        """Send a message to the client
+        Args:
+            msg: the string to be sent
+        """
         global crypted
         to_send = "_|_BEGIN_COMMUNICATION_|_"
         if crypted and self.logged:
@@ -294,6 +305,8 @@ class ThreadClient(threading.Thread):
             print("ERROR while sending message")
 
     def run(self):
+        """the function that is called after the creation of a thread.
+        """
         nom = self.getName()
         while 1:
             msgClient = self.receive()
@@ -360,6 +373,6 @@ while 1:
         connection.send(msgsend)
     except:
         print("client disconnected before welcome")
-        
+
 s.close() #Close connection
 print("Connection Closed.")
