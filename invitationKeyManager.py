@@ -30,6 +30,15 @@ def aliasUnique(aliasValue):
             unique = False
     return unique
 
+def reset():
+    """erase and recreate the tree in the database 
+    """
+    emptyXml()
+    global tree
+    tree = ET.parse('invitation.xml')
+    global root
+    root = tree.getroot()
+
 def getRandomString(length):
     base = string.ascii_lowercase + string.ascii_uppercase + string.digits
     rndStr = ''.join(random.choice(base) for i in range(length))
