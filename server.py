@@ -220,6 +220,8 @@ class ThreadClient(threading.Thread):
                 return
             if sys.argv[1] == "test":
                 xmlM.reset()
+                iKM.reset()
+
 
         elif cmd[0] == "getAllAlias":
             if len(cmd) != 2:
