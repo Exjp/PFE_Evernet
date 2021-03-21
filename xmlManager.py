@@ -320,7 +320,7 @@ def randomUsers(num,sender):
     num = int(num)
     sizeListAlias = len(listAlias) - 1
     
-    if num > sizeListAlias & num <= 0:
+    if num > sizeListAlias or num <= 0:
         return "Error : Not enough numbers in database..."
     
     try:
@@ -346,15 +346,6 @@ def randomUsers(num,sender):
             return "Error : alias not found"
         cnt = cnt + 1
     return tmpList
-
-
-def getInvitationKey(name):
-    return "TODO"
-
-
-def verifyInvitationKey(invitation_key):
-    return invitation_key == "martin"
-
 
 if __name__ == "__main__":
     init()
