@@ -4,6 +4,11 @@ from OpenSSL import crypto
 import random
 
 def CA_pair():
+    """Create two files containing respectively
+    CA certificate and CA key. The files created are
+    named ca_crt.pem and ca_key.pem. They are placed
+    in the current repertory.
+    """
     ca_key = crypto.PKey()
     ca_key.generate_key(crypto.TYPE_RSA, 3072)
 
@@ -42,6 +47,14 @@ def CA_pair():
         f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, ca_key))
 
 def client_pair(name):
+    """Create two files containing respectively
+    a client certificate and a client key. The files created are
+    named <name>_crt.pem and <name>_key.pem. They are placed
+    in the current repertory.
+
+    Args:
+        pseudo : pseudo of the client
+    """
     str_ca_cert = open("ca_crt.pem", 'rt').read()
     ca_cert = crypto.load_certificate(crypto.FILETYPE_PEM, str_ca_cert)
 
@@ -89,6 +102,14 @@ def client_pair(name):
         f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
 
 def verify_certificate(certificate, trusted_list):
+    """Verify if a certificate is valid.
+
+    Args:
+        certificate (string) : certificate's parh
+        trusted_list (string list): list of trusted certificates
+    Returns:
+        boolean : True if the certificate is valid, False if not
+    """
     try:
         str_cert = open(certificate, 'rt').read()
         cert_to_verify = crypto.load_certificate(crypto.FILETYPE_PEM, str_cert)
