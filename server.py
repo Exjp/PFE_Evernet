@@ -74,6 +74,9 @@ class ThreadClient(threading.Thread):
                 print("ERROR 2_|_Permission denied!")
                 self.sendMessage("ERROR 2_|_Permission denied!")
                 return
+            if len(cmd) == 1:
+                self.sendMessage("martin")
+                return
             if len(cmd) != 3:
                 print("ERROR 3_|_Wrong input format: getInvitationKey_|_*end_date(jj-mm-yyyy)*_|_*nbOfUse*")
                 self.sendMessage("ERROR 3_|_Wrong input format: getInvitationKey_|_*end_date(jj-mm-yyyy)*_|_*nbOfUse*")
