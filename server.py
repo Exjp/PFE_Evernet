@@ -201,6 +201,7 @@ class ThreadClient(threading.Thread):
             if len(list) == 1:
                 strList = ""
                 strList += list[0][0]
+                strList += list[0][1]
             else:
                 strList = ""
                 strList += list[0][0]
