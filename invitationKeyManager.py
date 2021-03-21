@@ -44,17 +44,12 @@ def formatDate(date):
         return False
     return True
 
-#format de la date : 17-03-2021
-#verifier les entrees (date (type date, j/m/a ou 0) et uses (type int)
-#limiter les durees max des cles ?
-#gérer le type des paramètre
 def addKey(aliasValue, dateValue, usesValue):
     if aliasUnique(aliasValue) != True:
         return "Error : A key already exists for this alias"
     if formatDate(dateValue) != True:
         return "Error : Date format incorrect"
     try:
-        # print(usesValue)
         if int(usesValue) < 0:
             return "Error : Negative uses value"
     except ValueError:
@@ -71,7 +66,6 @@ def addKey(aliasValue, dateValue, usesValue):
     treeWrite()
     return key
 
-#pas de treewrite ici, on le fait à la fin du signup et du cleanup
 def removeKey(key):
     for elem in root:
         if elem.attrib['key'] == key:
@@ -79,8 +73,6 @@ def removeKey(key):
             return True
     return "Error : Key not found"
 
-#cleanup régulier pour virer les clés expirées en date -> datetime comparer 2 dates (entre actuel et valeur ds la bdd) -> >
-#durée de vie en jours (si 0 infini)
 def cleanup():
     presentDate = datetime.now()
     tmpList = []

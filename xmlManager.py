@@ -43,10 +43,10 @@ def aliasUnique(aliasValue):
     """test if the alias is not already in the database
 
     Args:
-        aliasValue (String): [description]
+        aliasValue (String)
 
     Returns:
-        [type]: [description]
+        Boolean
     """
     unique = True
     for elem in root:
@@ -356,8 +356,6 @@ def verifyInvitationKey(invitation_key):
     return invitation_key == "martin"
 
 
-def main():
-    print("C'est la faute de Jak.")
 if __name__ == "__main__":
     init()
-    main()
+
