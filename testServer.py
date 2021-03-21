@@ -365,11 +365,20 @@ TEST GETINVITATIONKEY
 
 def testGetInvitationKeyWorking():
     connection()
+    send("clearDB")
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
     receive()
-    send("getInvitationKey")
+    send("getInvitationKey 22-03-2021 1")
+    invitation_key = receive()
+    print(invitation_key)
+    deconnection()
+    connection()
+    msg_to_send = "signIn alias_test2 mdp_tes2 1123456789 " + str(invitation_key)
+    #print(msg_to_send)
+    send(msg_to_send)
     msg = receive()
-    if msg[0] != "martin":
+    print(msg)
+    if msg[0] != "1123456789":
         send("clearDB")
         deconnection()
         return False
@@ -408,7 +417,7 @@ def testGetInvitationKeyErrorPermission():
     return True
 
 """
-TEST GETINVITATIONKEY
+TEST GETALLALIAS
 """
 
 def testGetAllAliasWorking():
@@ -502,7 +511,7 @@ PORT = 50001
 
 mySocket = None
 
-
+'''
 print("Début des Tests Unitaires :")
 print("----------Fonction connection----------")
 print("1 Test de connexion au serveur : ", end='')
@@ -541,6 +550,7 @@ print("15 Test de l'erreur de format : ", end='')
 printValide(testGetPhoneNumListErrorFormat())
 print("16 Test de l'erreur de permission : ", end='')
 printValide(testGetPhoneNumListErrorPermission())
+'''
 print("----------Fonction getInvitationKey----------")
 print("17 Test de getInvitationKey : ", end='')
 printValide(testGetInvitationKeyWorking())
@@ -548,6 +558,7 @@ print("18 Test de l'erreur de format : ", end='')
 printValide(testGetInvitationKeyErrorFormat())
 print("19 Test de l'erreur de permission : ", end='')
 printValide(testGetInvitationKeyErrorPermission())
+'''
 print("----------Fonction getAllAlias----------")
 print("20 Test de getAllAlias : ", end='')
 printValide(testGetAllAliasWorking())
@@ -557,6 +568,7 @@ print("22 Test de l'erreur wrong password : ", end='')
 printValide(testGetAllAliasWrongPassword())
 print("23 Test de l'erreur empty tree : ", end='')
 printValide(testGetAllAliasEmptyTree())
+'''
 if cpt != total:
     if total - cpt == 1:
         print("1 test est invalide !")
