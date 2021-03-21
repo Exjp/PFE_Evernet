@@ -2,7 +2,7 @@ from xmlManager import *
     
 
         
-def testInit(): ###### init()
+def testInit():
     cpt = 0
     init()
     ("Martine&Joçelin","mdp", "+33669664628", "kay")
@@ -14,16 +14,16 @@ def testInit(): ###### init()
     return cpt
 
 
-def testEmptyXml(): ###### emptyXml()
+def testEmptyXml():
     cpt = 0
     emptyXml()
     addUser("Gérard","mdp", "+336349664628", "koy")
-    print(getAliases())
-    if(len(getAliases()) != 0):
+
+    if(len(getAliases()) != 1):
         print("error emptyXml 1")
         cpt = cpt + 1
     return cpt
-def testReset(): ###### reset()
+def testReset():
     cpt = 0
     addUser("Gérard","mdp", "+336349664628", "koy")
 
@@ -35,7 +35,7 @@ def testReset(): ###### reset()
 
     return cpt
 
-def testRandomUser(): ###### randomUsers() 
+def testRandomUser():
     cpt = 0
     if(randomUsers(2,"Alexa") != "Error : Tree empty"):
         print("error randomUsers 1")
@@ -72,7 +72,7 @@ def testRandomUser(): ###### randomUsers()
     return cpt
 
 
-def testGetAliases(): ###### getAliases()
+def testGetAliases():
     cpt = 0
     reset()
     if(getAliases() != "Error : Tree empty"):
@@ -96,7 +96,7 @@ def testGetAliases(): ###### getAliases()
 
     return cpt
 
-def testAddUser(): ###### addUser()
+def testAddUser():
     cpt = 0
     addUser("Thierry","mdp", "+33666666266", "key")
 
@@ -132,7 +132,7 @@ def testAddUser(): ###### addUser()
 
     return cpt
 
-def testAliasUnique(): ###### aliasUnique()
+def testAliasUnique():
     cpt = 0
     if(aliasUnique("Pierre") == False):
         print("error aliasUnique 1")
@@ -146,7 +146,7 @@ def testAliasUnique(): ###### aliasUnique()
 
     return cpt
 
-def testnumberUnique(): ###### numberUnique()
+def testnumberUnique():
     cpt = 0
     if(numberUnique("+33266666222") == False):
         print("error numberUnique 1")
@@ -173,7 +173,7 @@ def testKeyUnique() :###### keyUnique()
 
     return cpt
 
-def testRemoveUserFromName(): ###### removeUserFromName()
+def testRemoveUserFromName():
     cpt = 0
     addUser("Jean","mdp5", "+33662622222", "key8")
 
@@ -187,7 +187,7 @@ def testRemoveUserFromName(): ###### removeUserFromName()
     
     return cpt
 
-def testRemoveUserFromNumber(): ###### removeUserFromNumber()
+def testRemoveUserFromNumber():
     cpt = 0
     addUser("Jean","mdp5", "+33662622222", "key9")
 
@@ -201,7 +201,7 @@ def testRemoveUserFromNumber(): ###### removeUserFromNumber()
     
     return cpt
 
-def testLogin(): ###### login()
+def testLogin():
     cpt = 0
     addUser("Philippe","mdp", "+33662222222", "key10")
     if(login("Philippe","mdp") != True):
@@ -213,7 +213,7 @@ def testLogin(): ###### login()
     
     return cpt
 
-def testBanUser(): ###### banUser()
+def testBanUser():
     cpt = 0
     addUser("Alex","mdp","0626575578","key11")
     banUser("Alex")
@@ -226,7 +226,7 @@ def testBanUser(): ###### banUser()
     
     return cpt
 
-def testUnBanUser(): ###### unBanUser()
+def testUnBanUser():
     cpt = 0
     addUser("Jacques","mdp","0622675578","key12")
     banUser("Jacques")
@@ -242,7 +242,7 @@ def testUnBanUser(): ###### unBanUser()
     
     return cpt
 
-def testIsBanned(): ###### isBanned()
+def testIsBanned():
     cpt = 0
     addUser("Ghislain","mdp","0626275578","key13")
     if(isBanned("Ghislain") != False):
@@ -256,7 +256,7 @@ def testIsBanned(): ###### isBanned()
     
     return cpt
 
-def testExists(): ###### exists()
+def testExists():
     cpt = 0
     addUser("Jeremy","mdp","0626275573","key14")
     if(exists("Jeremy") != True):
@@ -270,7 +270,7 @@ def testExists(): ###### exists()
     return cpt
 
 
-def testgetNumberFromAlias(): ###### getNumberFromAlias()
+def testgetNumberFromAlias():
     cpt = 0
     addUser("Clément","mdp","0622275573","key15")
     if(getNumberFromAlias("Clément") != "0622275573"):
@@ -283,7 +283,7 @@ def testgetNumberFromAlias(): ###### getNumberFromAlias()
     
     return cpt
 
-def testgetKeyFromAlias(): ###### getKeyFromAlias()
+def testgetKeyFromAlias():
     cpt = 0
     addUser("Martin","mdp","0622273573","key16")
     if(getKeyFromAlias("Martin") != "key16"):
@@ -296,7 +296,7 @@ def testgetKeyFromAlias(): ###### getKeyFromAlias()
     
     return cpt
 
-def testFormatNumber():###### formatNumber()
+def testFormatNumber():
     cpt = 0
     if(formatNumber("+33626436690") != True):
         print("error formatNumber 1")
@@ -315,7 +315,7 @@ def testFormatNumber():###### formatNumber()
 def initTest():
     funcList = []
     funcList.append(testInit())
-    # funcList.append(testEmptyXml())   #TODO
+    funcList.append(testEmptyXml())
     funcList.append(testReset())
     funcList.append(testRandomUser())
     funcList.append(testGetAliases())

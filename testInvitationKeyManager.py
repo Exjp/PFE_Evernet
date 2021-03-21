@@ -64,14 +64,17 @@ def testSignup():
     key = addKey("Alex","20-04-2021","20")
     if(signup(key) != True):
         print("error signup 1")
+        cpt = cpt + 1
 
     if(signup("aaaa") != "Error : Key not found"):
         print("error signup 2")
+        cpt = cpt + 1
     
     key = addKey("Jacques","20-04-2021","1")
     signup(key)
     if(signup(key) != "Error : Key not found"):
         print("error signup 3")
+        cpt = cpt + 1
     
     return cpt
 
