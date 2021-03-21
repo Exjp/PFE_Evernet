@@ -1,5 +1,6 @@
 import sys, threading, os, datetime, time, socket
 import xmlManager as xmlM
+import invitationKeyManager as iKM
 from pairUtils import *
 import rsaUtils as ru
 import jpysocket
@@ -73,11 +74,30 @@ class ThreadClient(threading.Thread):
                 print("ERROR 2_|_Permission denied!")
                 self.sendMessage("ERROR 2_|_Permission denied!")
                 return
-            if len(cmd) != 1:
-                print("ERROR 3_|_Wrong input format: getInvitationKey")
-                self.sendMessage("ERROR 3_|_Wrong input format: getInvitationKey")
+            if len(cmd) != 3:
+                print("ERROR 3_|_Wrong input format: getInvitationKey_|_*end_date(jj-mm-yyyy)*_|_*nbOfUse*")
+                self.sendMessage("ERROR 3_|_Wrong input format: getInvitationKey_|_*end_date(jj-mm-yyyy)*_|_*nbOfUse*")
                 return
-            self.sendMessage("martin")
+
+            res = iKM.addKey(self.alias, cmd[1], cmd[2])
+            if res == "Error : A key already exists for this alias":
+                print("ERROR 9_|_you already have an invitation key")
+                self.sendMessage("ERROR 9_|_you already have an invitation key")
+                return
+            if res == "Error : Date format incorrect":
+                print("ERROR 9_|_Date format incorrect")
+                self.sendMessage("ERROR 9_|_Date format incorrect")
+                return
+            if res == "Error : Negative uses value":
+                print("ERROR 9_|_nbOfUse can't be negative")
+                self.sendMessage("ERROR 9_|_nbOfUse can't be negative")
+                return
+            if res == "Error : number of uses is not an integer":
+                print("ERROR 9_|_number of uses should be an integer")
+                self.sendMessage("ERROR 9_|_number of uses should be an integer")
+                return
+
+            self.sendMessage(res)
 
 
 
@@ -90,11 +110,13 @@ class ThreadClient(threading.Thread):
                 print("ERROR 3_|_Wrong input format: signIn_|_*alias*_|_*password*_|_*phoneNum*_|_*invitationKey*")
                 self.sendMessage("ERROR 3_|_Wrong input format: signIn_|_*alias*_|_*password*_|_*phoneNum*_|_*invitationKey*")
                 return
-            if cmd[4] != "martin":
-                print("ERROR 8_|_Wrong invitation key")
-                self.sendMessage("ERROR 8_|_Wrong invitation key")
-                return
-            #verif cmd[3]la clé d'invition
+            resKey = iKM.signup(cmd[4])
+            if resKey == "Error : Key not found":
+                if cmd[4] != "martin":
+                    print("ERROR 8_|_Wrong invitation key")
+                    self.sendMessage("ERROR 8_|_Wrong invitation key")
+                    return
+
             client_pair(cmd[1])
             cert_str = open(cmd[1]+"_crt.pem", 'rt').read()
             key_str = open(cmd[1]+"_key.pem", 'rt').read()
@@ -342,6 +364,7 @@ except:
 ca_cert_str = open("ca_crt.pem", 'rt').read()
 try:
     xmlM.init()
+    iKM.init()
 except:
     print("Error initialising dataBase")
     sys.exit()
@@ -363,6 +386,7 @@ print("Serveur prêt, en attente de requêtes ...")
 conn_client = {}
 while 1:
     connection,address=s.accept()
+    iKM.cleanup()
     th = ThreadClient(connection)
     th.start()
     print("\n" + str(datetime.datetime.now()) + " Connected To: " + str(address[0]) + " on port: " + str(address[1]) + " on thread: " + str(th.getName()) + "\n")
