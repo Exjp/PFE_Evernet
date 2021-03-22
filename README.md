@@ -29,6 +29,8 @@ $ python3 server.py test
 $ python3 client.py
 ```
 
+You can find the documentation on the server in : `Documentation.pdf`
+
 ## Auteurs
 
 **Boisseau Martin**
