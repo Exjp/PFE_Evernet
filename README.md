@@ -13,10 +13,8 @@ To manage software packages for Python and download all the required lib
 ```shell
 $ sudo apt-get install -y python3-pip
 ```
-Download required lib
-```shell
-$ pip3 install jpysocket lxml pyOpenSSL bcrypt pcrytodome
-```
+Download the required libs : jpysocket(version 1.1.3), pyOpenSSL, bcrypt, pcrytodome
+
 To launch the server
 ```shell
 $ python3 server.py
