@@ -19,7 +19,7 @@ except:
 
 time.sleep(1)
 
-if (verify_certificate("test_crt.pem", ["ca_crt.pem"]) == True):
+if (verify_certificate("test_crt.pem", ["test_crt.pem"]) == True):
     print("---Test failed: the function returned True while the certificate was not in the trusted list---")
 else:
     print("---Successfully returned False when the certificate was not in the trusted list---")

@@ -6,7 +6,7 @@ print(st)
 
 test_counter = 0
 
-enc_str = encrypt_with_pem(st, "ca")
+enc_str = encrypt_with_pem(st.encode(), "ca")
 if(st != enc_str):
     print("Encrypted text:")
     print(enc_str)
@@ -15,8 +15,7 @@ if(st != enc_str):
 else:
     print("---Encryption did not work, encrypted text and original are the same---")
 
-dec_str = decrypt(enc_str)
-
+dec_str = decrypt(enc_str).decode('utf-8')
 if(st == dec_str):
     print("Decrypted text:")
     print(dec_str)
@@ -37,7 +36,7 @@ xmlManager.addUser("test", "test", "0987654321", open("ca_crt.pem", 'rt').read()
 st = "This is a text to test our encrytion and decrytion functions!"
 print(st)
 
-enc_str = encrypt(st, "test")
+enc_str = encrypt(st.encode(), "test")
 if(st != enc_str):
     print("Encrypted text:")
     print(enc_str)
@@ -46,7 +45,7 @@ if(st != enc_str):
 else:
     print("---Encryption did not work, encrypted text and original are the same---")
 
-dec_str = decrypt(enc_str)
+dec_str = decrypt(enc_str).decode('utf-8')
 
 if(st == dec_str):
     print("Decrypted text:")

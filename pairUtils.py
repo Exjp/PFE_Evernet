@@ -126,5 +126,4 @@ def verify_certificate(certificate, trusted_list):
 
         return True
     except Exception as e:
-        print(e)
         return False
