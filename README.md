@@ -15,7 +15,7 @@ $ sudo apt-get install -y python3-pip
 ```
 Download required lib
 ```shell
-$ pip3 install jpysocket rsaUtils lxml pyOpenSSL bcrypt
+$ pip3 install jpysocket rsaUtils lxml pyOpenSSL bcrypt pcrytodome
 ```
 To launch the server
 ```shell
