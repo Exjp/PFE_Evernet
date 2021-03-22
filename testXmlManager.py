@@ -345,5 +345,5 @@ if __name__ == '__main__':
         if(tmp > 0):
             cpt = cpt + tmp
         # reset()
-    print("test pas passé : ",cpt)
+    print("test non passé : ",cpt)
 

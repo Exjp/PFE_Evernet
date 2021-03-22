@@ -98,5 +98,5 @@ if __name__ == '__main__':
         tmp = func
         if(tmp > 0):
             cpt = cpt + tmp
-    print("test pas passé : ",cpt)
+    print("test non passé : ",cpt)
 
