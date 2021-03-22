@@ -201,6 +201,7 @@ class ThreadClient(threading.Thread):
             if len(list) == 1:
                 strList = ""
                 strList += list[0][0]
+                strList += list[0][1]
             else:
                 strList = ""
                 strList += list[0][0]
@@ -259,7 +260,6 @@ class ThreadClient(threading.Thread):
         global crypted
         try:
             msg=connection.recv(1024)
-            print(msg)
         except:
             print("error while receive")
             return "error while receive"
