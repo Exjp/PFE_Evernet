@@ -260,7 +260,6 @@ class ThreadClient(threading.Thread):
         global crypted
         try:
             msg=connection.recv(1024)
-            print(msg)
         except:
             print("error while receive")
             return "error while receive"
