@@ -423,7 +423,7 @@ def testGetInvitationKeyErrorPermission():
     receive()
     deconnection()
     connection()
-    send("getInvitationKey 22-03-2021 1")
+    send("getInvitationKey 22-03-2999 1")
     msg = receive()
     if msg[0] != "ERROR 2":
         send("clearDB")
@@ -437,7 +437,7 @@ def testGetInvitationKeyErrorAlreadyHaveKey():
     connection()
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
     receive()
-    send("getInvitationKey 22-03-2021 1")
+    send("getInvitationKey 22-03-2999 1")
     receive()
     send("getInvitationKey 22-03-2021 1")
     msg = receive()
