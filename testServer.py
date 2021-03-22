@@ -350,7 +350,6 @@ def testGetPhoneNumListErrorPermission():
     connection()
     send("getPhoneNumList 2")
     msg = receive()
-    #print(msg)
     if msg[0] != "ERROR 2":
         send("clearDB")
         deconnection()
@@ -368,12 +367,12 @@ def testGetInvitationKeyWorking():
     send("clearDB")
     send("signIn alias_test mdp_test 0123456789 martin") #INVITATIONKEY A CHANGER
     receive()
-    send("getInvitationKey 22-03-2021 1")
+    send("getInvitationKey 22-03-2999 1")
     invitation_key = receive()
     deconnection()
     connection()
     send("signIn alias_test2 mdp_test2 1123456789 " + str(invitation_key[0]))
-    receive()
+    msg_tmp = receive()
     deconnection()
     connection()
     send("logIn alias_test2 mdp_test2")
@@ -601,6 +600,7 @@ print("23 Test de l'erreur wrong password : ", end='')
 printValide(testGetAllAliasWrongPassword())
 print("24 Test de l'erreur empty tree : ", end='')
 printValide(testGetAllAliasEmptyTree())
+
 if cpt != total:
     if total - cpt == 1:
         print("1 test est invalide !")
